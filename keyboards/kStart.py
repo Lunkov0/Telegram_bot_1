@@ -1,18 +1,25 @@
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
 
 
-kb_start = InlineKeyboardMarkup(inline_keyboard=[
+btns = [
     [
-        InlineKeyboardButton(
-            text='Записаться на прием',
-            callback_data='make_an_appointment'
-        )
-
+        KeyboardButton(text='Записаться на прием'),
+        KeyboardButton(text='Мои записи'),
     ],
-    [
-        InlineKeyboardButton(
-            text='Просмотреть мои записи',
-            callback_data='my_appointments'
-        )
-    ]
-])
+]
+
+kb_start = ReplyKeyboardMarkup(
+    keyboard=btns,
+    resize_keyboard=True,
+    input_field_placeholder='Выберете способ подачи')  # Текст в строке ввода
+
+btns2 = [
+    [KeyboardButton(text='Step1'),
+     KeyboardButton(text='Step2')]
+]
+
+kb_step = ReplyKeyboardMarkup(
+    keyboard=btns2,
+    resize_keyboard=True,
+    input_field_placeholder='Второй шаг',
+)
