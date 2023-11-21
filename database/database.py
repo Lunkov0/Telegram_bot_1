@@ -1,29 +1,53 @@
 import psycopg2
 from config import HOST, USER, PASSWORD, DB_NAME, PORT
 
-try:
-    # connect to exist database
-    conn = psycopg2.connect(
-        host=HOST,
-        user=USER,
-        password=PASSWORD,
-        database=DB_NAME,
-        port=PORT
-    )
+
+'''Для работы с Postgres создан класс DataBase
+Создаем таблицы:
+    services - список услуг, время на услугу, описание
     
-    conn.autocommit = True
+Декоратор connecting_to_the_database используется для подключения и отключения от БД
 
-    # the cursor for perfoming database operations
-    with conn.cursor() as cursor:
-        cursor.execute(
-            'SELECT version();'
-        )
+Реализованны функции:
+    add_service - добавить услугу'''
+class DataBase:
+    def connecting_to_the_database(func):
+        def wrapper(*args):
+            connection = psycopg2.connect(user=USER, password=PASSWORD, host=HOST, port=PORT, database=DB_NAME)
+            connection.autocommit = True
+            cursor = connection.cursor()
 
-        print(f'SOME {cursor.fetchone()}')
+            # Шо за первый объект? self?
+            func(cursor, *args[1:])
 
-except Exception as _ex:
-    print('[INFO] Error while working with PostgreSQL', _ex)
-finally:
-    if conn:
-        conn.close()
-        print('[INFO] PostgreSQL connection closed')
+            connection.close()
+        return wrapper
+
+    @connecting_to_the_database
+    def create_table_services(cursor):
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS services(
+                name VARCHAR(50),
+                duration TIME,
+                description VARCHAR(400)
+                );
+        ''')
+
+    def __init__(self):
+        self.create_table_services()
+
+        # cursor.execute('''SELECT * FROM public.services''')
+        # print(cursor.fetchall())
+
+    @connecting_to_the_database
+    def add_service(cursor, name, duration, description):
+        cursor.execute(f"""
+                    INSERT INTO services
+                    (name, duration, description)
+                    VALUES('{name}', '{duration}', '{description}');
+                       """)
+
+
+q = DataBase()
+q.add_service("Artem", "1:15", "friend")
+
