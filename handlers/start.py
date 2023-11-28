@@ -2,7 +2,7 @@ from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message
 
-from keyboards.kStart import kb_start, kb_step
+from keyboards.kStart import kb_start
 
 
 router = Router()
@@ -16,11 +16,11 @@ async def start(message: Message):
     )
 
 
-@router.message(F.text.lower() == 'button1')
-async def button1(message: Message):
-    await message.answer(
-        'Ты нажал первую кнопку',
-        reply_markup=kb_step)
+# @router.message(F.text.lower() == 'button1')
+# async def button1(message: Message):
+#     await message.answer(
+#         'Ты нажал первую кнопку',
+#         reply_markup=kb_step)
 
 @router.message(F.text.lower() == 'button2')
 async def button2(message: Message):

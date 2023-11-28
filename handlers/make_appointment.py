@@ -1,14 +1,14 @@
 from aiogram import Router, F
 from aiogram.filters import Command
-from aiogram.types import Message
+from aiogram import types
 
-from keyboards.kStart import kb_start, kb_step
+# from keyboards.kStart import
 
 
 router = Router()
 
-@router.message(F.text.lower() == 'Записаться на прием')
-async def button1(message: Message):
-    await message.answer(
-        'Ты нажал первую кнопку',
-        reply_markup=kb_step)
+
+@router.callback_query(F.data == 'make_an_appointment')
+async def make_an_appointment(callback: types.CallbackQuery):
+    # await callback.message.answer
+    await callback.message.answer(text='Some')
