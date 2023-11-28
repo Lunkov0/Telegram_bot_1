@@ -20,9 +20,11 @@ class DataBase:
             connection.autocommit = True
             cursor = connection.cursor()
 
-            func(connection, cursor, *args[1:])
+            res = func(connection, cursor, *args[1:])
 
             connection.close()
+
+            return res
         return wrapper
 
     @connecting_to_the_database
@@ -54,7 +56,7 @@ class DataBase:
         self.create_table_appointments()
 
     @connecting_to_the_database
-    def add_service(connection, cursor, *args):
+    def services_add(connection, cursor, *args):
         cursor.execute(f"""
                     INSERT INTO services
                     (name, duration, description)
@@ -62,11 +64,19 @@ class DataBase:
                        )
 
     @connecting_to_the_database
-    def add_appointment(connection, cursor, *args):
+    def services_get_names(connection, cursor):
+        cursor.execute('SELECT name FROM services')
+        res = cursor.fetchall()
+        return res
+
+    @connecting_to_the_database
+    def appointment_add(connection, cursor, *args):
         cursor.execute(f"""INSERT INTO appointments
                     (full_name, appointment_time, contact_phone, users_tg_id, services_id)
                     VALUES(%s, %s, %s, %s, %s);""", args)
 
+
 q = DataBase()
 # q.add_service('Artem', '2:00', 'Some description')
 # q.add_appointment('qqqqq', '1:15', '89242194144', 9999, 1111)
+print(q.services_get_names())
