@@ -7,7 +7,7 @@ from keyboards.kStart import kb_start, kb_step
 
 router = Router()
 
-@router.message(F.text.lower() == 'button1')
+@router.message(F.text.lower() == 'Записаться на прием')
 async def button1(message: Message):
     await message.answer(
         'Ты нажал первую кнопку',
