@@ -1,5 +1,5 @@
 import psycopg2
-from config import HOST, USER, PASSWORD, DB_NAME, PORT
+from database.config import HOST, USER, PASSWORD, DB_NAME, PORT
 
 
 '''Для работы с Postgres создан класс DataBase
@@ -65,9 +65,10 @@ class DataBase:
 
     @connecting_to_the_database
     def services_get_names(connection, cursor):
-        cursor.execute('SELECT name FROM services')
+        cursor.execute('SELECT id, name FROM services')
         res = cursor.fetchall()
         return res
+        # return [val[0] for val in res]
 
     @connecting_to_the_database
     def appointment_add(connection, cursor, *args):
@@ -76,7 +77,7 @@ class DataBase:
                     VALUES(%s, %s, %s, %s, %s);""", args)
 
 
-q = DataBase()
+dataBase = DataBase()
 # q.add_service('Artem', '2:00', 'Some description')
 # q.add_appointment('qqqqq', '1:15', '89242194144', 9999, 1111)
-print(q.services_get_names())
+print(dataBase.services_get_names())
