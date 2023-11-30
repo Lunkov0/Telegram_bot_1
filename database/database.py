@@ -12,6 +12,7 @@ from database.config import HOST, USER, PASSWORD, DB_NAME, PORT
 Реализованны функции:
     add_service - добавить услугу
     add_appointment - добавить запись
+    
     '''
 class DataBase:
     def connecting_to_the_database(func):
