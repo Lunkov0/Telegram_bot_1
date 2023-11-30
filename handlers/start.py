@@ -15,13 +15,6 @@ async def start(message: Message):
         reply_markup=kb_start
     )
 
-
-# @router.message(F.text.lower() == 'button1')
-# async def button1(message: Message):
-#     await message.answer(
-#         'Ты нажал первую кнопку',
-#         reply_markup=kb_step)
-
 @router.message(F.text.lower() == 'button2')
 async def button2(message: Message):
     await message.reply('Ты нажал вторую кнопку')

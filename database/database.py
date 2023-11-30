@@ -51,9 +51,36 @@ class DataBase:
                 );
         ''')
 
+    # Стандартное расписание
+    @connecting_to_the_database
+    def schedule(connection, cursor):
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS schedule(
+                id SERIAL PRIMARY KEY,
+                day_of_the_week SMALLINT,
+                start_time TIME,
+                end_time TIME
+                );
+        ''')
+
+    # Изменения в расписании
+    @connecting_to_the_database
+    def schedule_changes(connection, cursor):
+        cursor.execute('''
+                CREATE TABLE IF NOT EXISTS schedule_changes(
+                    id SERIAL PRIMARY KEY,
+                    my_date DATE,
+                    is_it_a_working_day SMALLINT,
+                    start_time TIME,
+                    end_time TIME
+                );
+            ''')
+
     def __init__(self):
         self.create_table_services()
         self.create_table_appointments()
+        self.schedule()
+        self.schedule_changes()
 
     @connecting_to_the_database
     def services_add(connection, cursor, *args):
@@ -78,6 +105,6 @@ class DataBase:
 
 
 dataBase = DataBase()
-# q.add_service('Artem', '2:00', 'Some description')
-# q.add_appointment('qqqqq', '1:15', '89242194144', 9999, 1111)
+# dataBase.services_add('Что-то еще', '2:00', 'Some description')
+# dataBase.add_appointment('qqqqq', '1:15', '89242194144', 9999, 1111)
 print(dataBase.services_get_names())
