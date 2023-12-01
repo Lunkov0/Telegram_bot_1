@@ -19,13 +19,23 @@ async def admin_p(message: Message):
         reply_markup=kb_admin,
     )
 
+# Пишет текущее расписание. Выдает дни недели для смены расписания.
 @router.callback_query(F.data == 'schedule')
 async def schedule(callback: types.CallbackQuery):
     s = dataBase.schedule_get()
+    weekday = [i for i in range(7)]
+    for i, num, start, stop in s:
+        weekday[int(num)] = f'{constants.WEEKDAY[int(num)]}: с {str(start)[:5]} до {str(stop)[:5]}'
 
     builder = InlineKeyboardBuilder()
     for num, day in constants.WEEKDAY.items():
         builder.add(types.InlineKeyboardButton(text=day, callback_data=f'schedule_set_{num}'))
     builder.adjust(2)  # Кол-во столбцов)
 
-    await callback.message.answer(text='Тут надо распарсить "s"', reply_markup=builder.as_markup(resize_keyboard=False))
+    txt = 'Твоё текущее расписание:\n\n' + '\n'.join(weekday) + '\n\n Кнопками ниже можно изменить часы работы'
+    await callback.message.answer(text=txt, reply_markup=builder.as_markup(resize_keyboard=False))
+
+
+@router.callback_query(F.data[:13].as_('set_schedule_'))
+async def schedule_set(callback: types.CallbackQuery):
+    await callback.message.answer(text=f'Hallo {callback.data}')
