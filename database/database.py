@@ -46,15 +46,15 @@ class DataBase:
                 id SERIAL PRIMARY KEY,
                 full_name VARCHAR(50),
                 appointment_time TIME,
-                contact_phone VARCHAR(15),
-                users_tg_id VARCHAR(21),
+                contact_phone VARCHAR(25),
+                users_tg_id VARCHAR(25),
                 services_id INTEGER
                 );
         ''')
 
     # Стандартное расписание
     @connecting_to_the_database
-    def schedule(connection, cursor):
+    def create_table_schedule(connection, cursor):
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS schedule(
                 id SERIAL PRIMARY KEY,
@@ -66,7 +66,7 @@ class DataBase:
 
     # Изменения в расписании
     @connecting_to_the_database
-    def schedule_changes(connection, cursor):
+    def create_table_schedule_changes(connection, cursor):
         cursor.execute('''
                 CREATE TABLE IF NOT EXISTS schedule_changes(
                     id SERIAL PRIMARY KEY,
@@ -80,8 +80,8 @@ class DataBase:
     def __init__(self):
         self.create_table_services()
         self.create_table_appointments()
-        self.schedule()
-        self.schedule_changes()
+        self.create_table_schedule()
+        self.create_table_schedule_changes()
 
     @connecting_to_the_database
     def services_add(connection, cursor, *args):
@@ -104,8 +104,13 @@ class DataBase:
                     (full_name, appointment_time, contact_phone, users_tg_id, services_id)
                     VALUES(%s, %s, %s, %s, %s);""", args)
 
+    @connecting_to_the_database
+    def schedule_get(connection, cursor):
+        cursor.execute('SELECT * FROM schedule')
+        return cursor.fetchall()
+
 
 dataBase = DataBase()
 # dataBase.services_add('Что-то еще', '2:00', 'Some description')
 # dataBase.add_appointment('qqqqq', '1:15', '89242194144', 9999, 1111)
-print(dataBase.services_get_names())
+print(dataBase.schedule_get())
