@@ -36,6 +36,8 @@ async def schedule(callback: types.CallbackQuery):
     await callback.message.answer(text=txt, reply_markup=builder.as_markup(resize_keyboard=False))
 
 
-@router.callback_query(F.data[:13].as_('set_schedule_'))
+@router.callback_query(F.data)
 async def schedule_set(callback: types.CallbackQuery):
-    await callback.message.answer(text=f'Hallo {callback.data}')
+    if callback.data.startswith('set_schedule_'):
+        await callback.message.answer(text=f'Hallo {callback.data}')
+        # Добавить установку время начала работы
