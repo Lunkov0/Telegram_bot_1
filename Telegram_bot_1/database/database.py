@@ -71,10 +71,9 @@ class DataBase:
         cursor.execute('''
                 CREATE TABLE IF NOT EXISTS schedule_changes(
                     id SERIAL PRIMARY KEY,
-                    my_date DATE,
-                    is_it_a_working_day SMALLINT,
-                    start_time TIME,
-                    end_time TIME
+                    start_date DATE,
+                    end_date DATE,
+                    is_it_a_working_day SMALLINT
                 );
             ''')
 
@@ -120,7 +119,21 @@ class DataBase:
         cursor.execute('UPDATE schedule SET end_time = %s WHERE day_of_the_week = %s', args)
 
 
+# '''************************************ schedule of changes *************************************'''
+    @connecting_to_the_database
+    def schedule_changes_add(connection, cursor, *args):
+        # is_it_a_working_day - 0=no, 1=yes, 2=work outside the schedule
+        cursor.execute(f"""
+                    INSERT INTO schedule_changes
+                    (start_date, end_date, is_it_a_working_day)
+                    VALUES(%s, %s, %s)""", args
+                       )
+
+
+
+
 dataBase = DataBase()
 # dataBase.services_add('Что-то еще', '2:00', 'Some description')
 # dataBase.appointment_add('Ramzan Ahmatovich', '1:15', '89242194144', 9999, 1111)
+# dataBase.schedule_changes_add('2023-12-30', '2023-12-30', '13:00', '14:00')
 print(dataBase.schedule_get())

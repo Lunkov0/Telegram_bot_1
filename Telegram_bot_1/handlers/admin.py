@@ -4,6 +4,8 @@ from aiogram.types import Message
 from aiogram import types
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+import datetime
+
 import constants
 from database.database import dataBase
 from keyboards.kAdmin import kb_admin, kb_admin_schedule
@@ -80,3 +82,16 @@ async def schedule_set_f(callback: types.CallbackQuery):
 
     txt = 'Отлично! Стандартное время работы обновлено!\n\nОбновить еще один день недели?'
     await callback.message.answer(text=txt, reply_markup=kb_admin)
+
+'''************************* schedule of changes ******************************'''
+@router.callback_query(F.data == 'change_of_schedule')
+async def change_of_schedule(callback: types.CallbackQuery):
+    builder = InlineKeyboardBuilder()
+    for next_day in range(30):
+        # текущая день плюс число из счетчика 'next_day'
+        day = datetime.date.today() + datetime.timedelta(days=next_day)
+        builder.add(types.InlineKeyboardButton(text=str(day), callback_data=f'c_s_days_{str(day)}'))
+    builder.adjust((4))
+
+    txt = 'Расписание на какую дату поменяем?'
+    await callback.message.answer(text=txt, reply_markup=builder.as_markup())
