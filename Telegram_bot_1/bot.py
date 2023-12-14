@@ -10,7 +10,8 @@ from handlers import start, make_appointment, admin
 
 
 async def main() -> None:
-    bot = Bot(token=os.getenv('TOKEN'))
+    # bot = Bot(token=os.getenv('TOKEN'))
+    bot = Bot('6679199342:AAH2CHgDn0mpdhXLs34SwIhJRopWgOybvXI')
     dp = Dispatcher(storage=MemoryStorage())
 
     dp.include_router(start.router)

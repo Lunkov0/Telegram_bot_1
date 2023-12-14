@@ -1,8 +1,12 @@
+from pydoc import html
+
 from aiogram import Router, F
 from aiogram.filters import Command
-from aiogram.types import Message
+from aiogram.fsm.context import FSMContext
+from aiogram.types import Message, ReplyKeyboardRemove, KeyboardButton, ReplyKeyboardMarkup
 from aiogram import types
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.fsm import state
 
 import datetime
 
@@ -11,6 +15,7 @@ from database.database import dataBase
 from keyboards.kAdmin import kb_admin, kb_admin_schedule
 from database.database import dataBase
 from constants import WEEKDAY
+from utils.states import ChangeFSM
 
 router = Router()
 
@@ -83,9 +88,10 @@ async def schedule_set_f(callback: types.CallbackQuery):
     txt = 'Отлично! Стандартное время работы обновлено!\n\nОбновить еще один день недели?'
     await callback.message.answer(text=txt, reply_markup=kb_admin)
 
+
 '''************************* schedule of changes ******************************'''
 @router.callback_query(F.data == 'change_of_schedule')
-async def change_of_schedule(callback: types.CallbackQuery):
+async def change_of_schedule(callback: types.CallbackQuery, state: FSMContext):
     builder = InlineKeyboardBuilder()
     for next_day in range(30):
         # текущая день плюс число из счетчика 'next_day'
@@ -94,4 +100,37 @@ async def change_of_schedule(callback: types.CallbackQuery):
     builder.adjust((4))
 
     txt = 'Расписание на какую дату поменяем?'
+    # await state.set_state(ChangeFSM.date)
     await callback.message.answer(text=txt, reply_markup=builder.as_markup())
+
+
+# А теперь пляска с машиной состояний      ?????????????
+
+# @router.callback_query(F.data.startswith('c_s_days_'))
+# async def c_s_days(message: types.Message, state: FSMContext):
+#     # await state.update_data(date=callback.data)
+#     await state.set_state(ChangeFSM.intersection)
+#     await message.answer('Отлично!!! теперь установим это говно')
+
+
+@router.callback_query(F.data.startswith('c_s_days_'))
+async def c_s_days(callback: types.CallbackQuery, state: FSMContext):
+    data = callback.data.split('_')
+    days = data[-1]
+    await state.update_data(days=days)
+
+    await callback.message.answer('Напиши, со скольки ты будешь работать в эту дату?')
+    await state.set_state(ChangeFSM.intersection)
+    # await ChangeFSM.intersection.set()
+
+
+@router.message(ChangeFSM.intersection)
+async def c_s_intersection(message: types.Message, state: FSMContext):
+    # Этот кусок работает. По крайней мере, из хэндлера выше
+    await message.answer('тута')
+    data = await state.get_data()
+    days = data.get('days')
+    await message.answer(days)
+
+    await message.answer('теперь я в нужном хэндлере')
+
