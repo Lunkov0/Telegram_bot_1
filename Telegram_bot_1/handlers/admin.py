@@ -119,18 +119,31 @@ async def c_s_days(callback: types.CallbackQuery, state: FSMContext):
     days = data[-1]
     await state.update_data(days=days)
 
-    await callback.message.answer('Напиши, со скольки ты будешь работать в эту дату?')
+    builder = InlineKeyboardBuilder()
+    for h in range(5, 24):
+        s_hour = f'{h}:00'
+        builder.add(types.InlineKeyboardButton(text=s_hour, callback_data=f'c_s_hours_start_{s_hour}'))
+    builder.adjust((3))
+
     await state.set_state(ChangeFSM.intersection)
-    # await ChangeFSM.intersection.set()
+    await callback.message.answer(text='Напиши, со скольки ты будешь работать в эту дату?',
+                                  reply_markup=builder.as_markup())
 
 
-@router.message(ChangeFSM.intersection)
-async def c_s_intersection(message: types.Message, state: FSMContext):
+
+# @router.message(ChangeFSM.intersection)
+@router.callback_query(F.data.startswith('c_s_hours_start_'))
+async def c_s_intersection(callback: types.CallbackQuery, state: FSMContext):
+    data = callback.data.split('_')
+    hour_start = data[-1]
+    await state.update_data(hour_start=hour_start)
+
     # Этот кусок работает. По крайней мере, из хэндлера выше
-    await message.answer('тута')
     data = await state.get_data()
     days = data.get('days')
-    await message.answer(days)
+    hour_start = data.get('hour_start')
+    await callback.message.answer(days)
+    await callback.message.answer(hour_start)
 
-    await message.answer('теперь я в нужном хэндлере')
+    await callback.message.answer('теперь я в нужном хэндлере')
 
