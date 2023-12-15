@@ -24,3 +24,14 @@ bt0 = [
 kb_admin_schedule = InlineKeyboardMarkup(
     inline_keyboard=bt0,
 )
+
+bt1 = [
+    [
+        InlineKeyboardButton(text="Хочу Выходной!!!}", callback_data="0"),
+        InlineKeyboardButton(text="Хочу все заработать все деньги мира!", callback_data="1"),
+        InlineKeyboardButton(text="Просто удалить предыдущие изменения", callback_data="2"),
+    ]
+]
+kb_c_s_type = InlineKeyboardMarkup(
+    inline_keyboard=bt1,
+)
