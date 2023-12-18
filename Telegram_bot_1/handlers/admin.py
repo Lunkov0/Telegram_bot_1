@@ -153,6 +153,50 @@ async def c_s_type(callback: types.CallbackQuery, state: FSMContext):
     await state.update_data(hour_end=hour_end)
 
     data = await state.get_data()
-    txt = f'Выбрана дата {data['date']} c {data['hour_start']} по {data['hour_end']}, какого типа именения сделаем?'
+
+    start_date = f'{data['date']} {data['hour_start']}'
+    end_date = f'{data['date']} {data['hour_end']}'
+
+    await state.update_data(start_date=start_date)
+    await state.update_data(end_date=end_date)
+
+    # Get the data already recorded for this day
+    intersection = dataBase.get_schedule_changes(data['date'])
+    if not intersection:
+        intersection_text = ''
+    else:
+        is_it_working_time = {0: 'Время отдыха', 1: 'Рабочее время'}
+        intersection_text = 'Я вижу, что в этот день уже есть изменения:\n'
+        for time in intersection:
+            intersection_text += f'С {time[1].hour} до {time[2].hour}. {is_it_working_time[int(time[3])]} \n'
+
+    txt = f'Выбрана дата {data['date']} c {data['hour_start']} по {data['hour_end']}.\n\n{intersection_text}\nКакого типа именения сделаем? Третьей кнопкой можно удалить ранее внесенные изменения расписания в этот день.'
 
     await callback.message.answer(text=txt, reply_markup=kb_c_s_type)
+
+
+@router.callback_query(lambda c: c.data in ['c_s_type_0', 'c_s_type_1'])
+async def put_c_s_intersection(callback: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+
+    await callback.message.answer('Работает')
+
+    start_date = f'{data['date']} {data['hour_start']}'
+    end_date = f'{data['date']} {data['hour_end']}'
+
+    dataBase.add_schedule_changes(start_date, end_date, '0')
+
+
+@router.callback_query(F.data == 'c_s_type_2')
+async def delete_c_s_intersection(callback: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    # await callback.message.answer(data['date'])
+    dataBase.delete_schedule_changes(data['date'])
+
+    txt = 'Все изменения в расписании на этот день удалены. Возвращение на панель администратора'
+    await callback.message.answer(text=txt, reply_markup=kb_admin)
+
+
+# @router.callback_query(F.data.startswith('c_s_type_'))
+# async def put_c_s_intersection(callback: types.CallbackQuery, state: FSMContext):
+

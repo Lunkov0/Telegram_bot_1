@@ -71,8 +71,8 @@ class DataBase:
         cursor.execute('''
                 CREATE TABLE IF NOT EXISTS schedule_changes(
                     id SERIAL PRIMARY KEY,
-                    start_date DATE,
-                    end_date DATE,
+                    start_date TIMESTAMP,
+                    end_date TIMESTAMP,
                     is_it_a_working_day SMALLINT
                 );
             ''')
@@ -121,13 +121,31 @@ class DataBase:
 
 # '''************************************ schedule of changes *************************************'''
     @connecting_to_the_database
-    def schedule_changes_add(connection, cursor, *args):
+    def add_schedule_changes(connection, cursor, *args):
         # is_it_a_working_day - 0=no, 1=yes, 2=work outside the schedule
         cursor.execute(f"""
                     INSERT INTO schedule_changes
                     (start_date, end_date, is_it_a_working_day)
                     VALUES(%s, %s, %s)""", args
                        )
+
+
+    @connecting_to_the_database
+    def get_schedule_changes(connection, cursor, *args):
+        cursor.execute(f"""
+                    SELECT * FROM schedule_changes
+                    WHERE date_trunc('day', start_date) = %s::date""", args  # We leave only the date for the search
+                       )
+        return cursor.fetchall()
+
+
+    @connecting_to_the_database
+    def delete_schedule_changes(connection, cursor, *args):
+        cursor.execute(f"""
+                    DELETE FROM schedule_changes
+                    WHERE date_trunc('day', start_date) = %s::date""", args  # We leave only the date for the search
+                       )
+
 
 
 
