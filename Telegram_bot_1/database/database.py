@@ -30,12 +30,13 @@ class DataBase:
         return wrapper
 
     @connecting_to_the_database
-    def create_table_services(connection, cursor):
+    def create_table_treatments(connection, cursor):
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS services(
+            CREATE TABLE IF NOT EXISTS treatments(
                 id SERIAL PRIMARY KEY,
                 name VARCHAR(50),
                 duration TIME,
+                price INTEGER,
                 description VARCHAR(400)
                 );
         ''')
@@ -78,7 +79,7 @@ class DataBase:
             ''')
 
     def __init__(self):
-        self.create_table_services()
+        self.create_table_treatments()
         self.create_table_appointments()
         self.create_table_schedule()
         self.create_table_schedule_changes()
@@ -92,8 +93,8 @@ class DataBase:
                        )
 
     @connecting_to_the_database
-    def services_get_names(connection, cursor):
-        cursor.execute('SELECT id, name FROM services')
+    def treatments_get_names(connection, cursor):
+        cursor.execute('SELECT id, name FROM treatments')
         res = cursor.fetchall()
         return res
         # return [val[0] for val in res]
@@ -120,14 +121,33 @@ class DataBase:
 
 
 # '''************************************ schedule of changes *************************************'''
+    # Добавляет данные если такого кортежа еще нет
     @connecting_to_the_database
     def add_schedule_changes(connection, cursor, *args):
         # is_it_a_working_day - 0=no, 1=yes, 2=work outside the schedule
         cursor.execute(f"""
-                    INSERT INTO schedule_changes
-                    (start_date, end_date, is_it_a_working_day)
-                    VALUES(%s, %s, %s)""", args
+                    SELECT COUNT(*) FROM schedule_changes
+                    WHERE start_date = %s AND end_date = %s
+                    """, args[:2]
                        )
+
+        count = cursor.fetchone()[0]
+        if count == 0:
+            cursor.execute(f"""
+                        INSERT INTO schedule_changes
+                        (start_date, end_date, is_it_a_working_day)
+                        VALUES(%s, %s, %s)""", args
+                           )
+            print("Data inserted successfully.")
+        else:
+            print("Data already exists in the database.")
+
+
+    @connecting_to_the_database
+    def get_all_schedule_changes(connection, cursor):
+        cursor.execute(f"""SELECT * FROM schedule_changes
+                    WHERE start_date > now()""")
+        return cursor.fetchall()
 
 
     @connecting_to_the_database
