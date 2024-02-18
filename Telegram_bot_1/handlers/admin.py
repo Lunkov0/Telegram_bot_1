@@ -99,7 +99,17 @@ async def change_of_schedule(callback: types.CallbackQuery, state: FSMContext):
         builder.add(types.InlineKeyboardButton(text=str(day), callback_data=f'c_s_days_{str(day)}'))
     builder.adjust((3))
 
-    txt = 'Расписание на какую дату поменяем?'
+    all_changes = dataBase.get_all_schedule_changes()
+
+    res = []
+    for id, start_date, end_date, is_it_working_day in all_changes:
+        if is_it_working_day == 0:
+            type_of_day = 'выходной'
+        else:
+            type_of_day = 'рабочий'
+        res.append(f'{str(start_date)[:-3]} до {str(end_date)[10:16]} {type_of_day} день')
+
+    txt = (f'Текущее расписание:\n\n{'\n'.join(res)}\n\nРасписание на какую дату поменяем?')
     # await state.set_state(ChangeFSM.date)
     await callback.message.answer(text=txt, reply_markup=builder.as_markup())
 
@@ -117,7 +127,7 @@ async def c_s_days(callback: types.CallbackQuery, state: FSMContext):
     builder.adjust((3))
 
     await state.set_state(ChangeFSM.intersection)
-    await callback.message.answer(text='Напиши, со скольки ты будешь работать в эту дату?',
+    await callback.message.answer(text='Напиши стартовое время для изменений',
                                   reply_markup=builder.as_markup())
 
 
@@ -151,6 +161,8 @@ async def c_s_type(callback: types.CallbackQuery, state: FSMContext):
     data = callback.data.split('_')
     hour_end = data[-1]
     await state.update_data(hour_end=hour_end)
+
+
 
     data = await state.get_data()
     txt = f'Выбрана дата {data['date']} c {data['hour_start']} по {data['hour_end']}, какого типа именения сделаем?'
