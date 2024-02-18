@@ -121,6 +121,16 @@ class DataBase:
 
 
 # '''************************************ schedule of changes *************************************'''
+    @connecting_to_the_database
+    def get_all_schedule_changes(connection, cursor):
+        cursor.execute(f"""
+                        SELECT * FROM schedule_changes
+                        WHERE start_date > now()
+                        ORDER BY start_date ASC
+                        """)
+        return cursor.fetchall()
+
+
     # Добавляет данные если такого кортежа еще нет
     @connecting_to_the_database
     def add_schedule_changes(connection, cursor, *args):
