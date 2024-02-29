@@ -109,7 +109,12 @@ async def change_of_schedule(callback: types.CallbackQuery, state: FSMContext):
             type_of_day = 'рабочий'
         res.append(f'{str(start_date)[:-3]} до {str(end_date)[10:16]} {type_of_day} день')
 
-    txt = (f'Текущее расписание:\n\n{'\n'.join(res)}\n\nРасписание на какую дату поменяем?')
+    if res:
+        txt = f'Текущее расписание:\n\n{'\n'.join(res)}\n\n'
+    else:
+        txt = ''
+
+    txt += ('Расписание на какую дату поменяем?')
     # await state.set_state(ChangeFSM.date)
     await callback.message.answer(text=txt, reply_markup=builder.as_markup())
 
@@ -161,8 +166,6 @@ async def c_s_type(callback: types.CallbackQuery, state: FSMContext):
     data = callback.data.split('_')
     hour_end = data[-1]
     await state.update_data(hour_end=hour_end)
-
-
 
     data = await state.get_data()
     txt = f'Выбрана дата {data['date']} c {data['hour_start']} по {data['hour_end']}, какого типа именения сделаем?'
