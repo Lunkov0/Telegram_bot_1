@@ -7,6 +7,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from handlers import start, make_appointment, admin
+from handlers.admin_hl import schedule, schedule_changes
 
 
 async def main() -> None:
@@ -17,6 +18,8 @@ async def main() -> None:
     dp.include_router(start.router)
     dp.include_router(make_appointment.router)
     dp.include_router(admin.router)
+    dp.include_router(schedule.router)
+    dp.include_router(schedule_changes.router)
 
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
