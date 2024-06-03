@@ -47,8 +47,12 @@ async def schedule_set(callback: types.CallbackQuery):
 
 @router.callback_query(F.data.startswith('schedule_start_set_'))
 async def schedule_set_s(callback: types.CallbackQuery):
+
     hour = callback.data.split('_')[-1]
     weekday = callback.data.split('_')[-2]
+
+    await callback.message.answer(text=f'{hour}, {weekday}')
+
     dataBase.schedule_set_s(hour, weekday)
 
     builder = InlineKeyboardBuilder()

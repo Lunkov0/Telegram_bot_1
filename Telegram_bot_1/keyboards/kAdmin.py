@@ -47,6 +47,9 @@ bt2 = [
     [
         InlineKeyboardButton(text='Добавить', callback_data='add_treatments'),
         InlineKeyboardButton(text='Удалить', callback_data='delete_treatments'),
+    ],
+    [
+        InlineKeyboardButton(text='Изменить процедуру', callback_data='delete_treatments'),
     ]
 ]
 
