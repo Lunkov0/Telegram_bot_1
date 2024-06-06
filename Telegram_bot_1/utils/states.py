@@ -13,3 +13,4 @@ class TreatmentFSM(StatesGroup):
     duration = State()
     price = State()
     description = State()
+    final = State()

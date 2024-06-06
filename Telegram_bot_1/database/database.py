@@ -94,11 +94,11 @@ class DataBase:
 
     @staticmethod
     @connecting_to_the_database
-    def services_add(cursor, *args):
+    def add_treatment(cursor, *args):
         cursor.execute(f"""
-                    INSERT INTO services
-                    (name, duration, description)
-                    VALUES(%s, %s, %s)""", args
+                    INSERT INTO treatments
+                    (name, duration, price description)
+                    VALUES(%s, %s, %s, %s)""", args
                        )
 
     @staticmethod

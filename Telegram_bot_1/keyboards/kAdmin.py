@@ -56,3 +56,20 @@ bt2 = [
 kb_treatments = InlineKeyboardMarkup(
     inline_keyboard=bt2,
 )
+
+
+bt3 = [
+    [
+        InlineKeyboardButton(text='Добавляем!', callback_data='add_treatment_to_the_db'),
+    ],
+    [
+        InlineKeyboardButton(text='Ввести заново', callback_data='change_treatment'),
+    ],
+    [
+        InlineKeyboardButton(text='Отменить', callback_data='cancel_adding_treatment'),
+    ]
+]
+
+kb_add_treatment = InlineKeyboardMarkup(
+    inline_keyboard=bt3,
+)
