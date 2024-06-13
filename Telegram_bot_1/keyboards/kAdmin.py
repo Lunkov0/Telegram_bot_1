@@ -66,7 +66,7 @@ bt3 = [
         InlineKeyboardButton(text='Ввести заново', callback_data='change_treatment'),
     ],
     [
-        InlineKeyboardButton(text='Отменить', callback_data='cancel_adding_treatment'),
+        InlineKeyboardButton(text='Отменить', callback_data='back_to_admin'),
     ]
 ]
 

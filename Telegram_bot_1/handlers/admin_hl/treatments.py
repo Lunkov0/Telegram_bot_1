@@ -10,6 +10,7 @@ from keyboards.kAdmin import kb_admin, kb_treatments, kb_add_treatment
 from database.database import dataBase
 from constants import WEEKDAY
 from utils.states import ChangeFSM, TreatmentFSM
+from aiogram.utils.callback_answer import CallbackAnswer
 from database.database import dataBase
 
 
@@ -43,10 +44,9 @@ async def treatments(callback: types.CallbackQuery):
 # Поля Процедуры для Машины состояний - name, duration, price, description
 @router.callback_query(F.data == 'add_treatments')
 @router.callback_query(F.data == 'change_treatment')
-# @router.callback_query(F.data == 'add_treatments', F.data == 'change_treatment')
 async def add_treatments(callback: types.CallbackQuery, state: FSMContext):
     txt = dataBase.treatments_get_names()
-    await callback.message.answer(text=f'Введи краткое название добавляемой процедуры\n{txt}')
+    await callback.message.answer(text=f'Введи краткое название добавляемой процедуры\nsgsdgn{txt}')
     await state.set_state(TreatmentFSM.name)
 
 
@@ -60,8 +60,6 @@ async def add_treatment_name(message: types.Message, state: FSMContext):
 @router.message(TreatmentFSM.description)
 async def add_treatment_description(message: types.Message, state: FSMContext):
     await state.update_data(description=message.text)
-    # data = await state.get_data()
-    # await message.answer(text=f'name:{data['name']}, description:{data['description']}')
     await message.answer(text='Сколько по времени длится процедура? Пример формата ввода: 0:07')
     await state.set_state(TreatmentFSM.duration)
 
@@ -84,25 +82,24 @@ async def add_treatment_price(message: types.Message, state: FSMContext):
 
     if validate_integer(price):
         await state.update_data(price=validate_integer(price))  # Каким образом лучше убрать повторение?
+
+        data = await state.get_data()
+        txt = (f'Отлично! Добавим процедуру со следующими параметрами?\n\n'
+               f'Название процедуры: {data['name']}.\n'
+               f'Описание процедуры: {data['description']}\n'
+               f'Продолжительность ЧЧ:ММ: {data['duration']}.\n'
+               f'Цена за процедуру: {data['price']} рублей.')
+
+        await message.answer(text=txt, reply_markup=kb_add_treatment)
         await state.set_state(TreatmentFSM.final)
     else:
         await message.answer(text='Нужно ввести число в формате: 3000. Введи стоймость повторно.')
         await state.set_state(TreatmentFSM.price)
 
+
+@router.callback_query(F.data == 'add_treatment_to_the_db')
+async def add_treatment_to_db(callback: types.CallbackQuery, state: FSMContext):
+    await callback.message.answer(text='Процедура записана в базу данных')
     data = await state.get_data()
-    txt = (f'Отлично! Добавим процедуру со следующими параметрами?\n\n'
-           f'Название процедуры: {data['name']}.\n'
-           f'Описание процедуры: {data['description']}\n'
-           f'Продолжительность ЧЧ:ММ: {data['duration']}.\n'
-           f'Цена за процедуру: {data['price']} рублей.')
-    await message.answer(text=txt, reply_markup=kb_add_treatment)
-
-
-@router.message(TreatmentFSM.price)
-async def add_treatment_price(callback: types.CallbackQuery, state: FSMContext):
-    if callback.message.text == 'add_treatment_to_the_db':
-        data = await state.get_data()
-        res = [data['name'], data['duration']. data['price']. data['description']]
-        dataBase.add_treatment(res)
-    if callback.message.text == 'change_treatment':
-        pass
+    res = [data['name'], data['duration'], data['price'], data['description']]
+    dataBase.add_treatment(*res)

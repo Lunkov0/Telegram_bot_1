@@ -97,8 +97,8 @@ class DataBase:
     def add_treatment(cursor, *args):
         cursor.execute(f"""
                     INSERT INTO treatments
-                    (name, duration, price description)
-                    VALUES(%s, %s, %s, %s)""", args
+                    (name, duration, price, description)
+                    VALUES(%s, %s, %s, %s)""", *args
                        )
 
     @staticmethod
@@ -149,7 +149,6 @@ class DataBase:
     @staticmethod
     @connecting_to_the_database
     def add_schedule_changes(cursor, *args):
-        # is_it_a_working_day - 0=no, 1=yes, 2=work outside the schedule
         cursor.execute(f"""
                     SELECT COUNT(*) FROM schedule_changes
                     WHERE start_date = %s AND end_date = %s
@@ -199,7 +198,7 @@ class DataBase:
         cursor.execute(f"""
                     INSERT INTO treatments
                     (name, duration, price, description)
-                    VALUES(%s, %s, %s)""", args
+                    VALUES(%s, %s, %s, %s)""", args
                        )
 
 
