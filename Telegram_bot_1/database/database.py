@@ -101,6 +101,15 @@ class DataBase:
                     VALUES(%s, %s, %s, %s)""", *args
                        )
 
+
+    @staticmethod
+    @connecting_to_the_database
+    def get_all_treatments(cursor):
+        cursor.execute('SELECT * FROM treatments')
+        res = cursor.fetchall()
+        return res
+
+
     @staticmethod
     @connecting_to_the_database
     def treatments_get_names(cursor):
@@ -108,6 +117,23 @@ class DataBase:
         res = cursor.fetchall()
         return res
         # return [val[0] for val in res]
+
+    @staticmethod
+    @connecting_to_the_database
+    def add_treatment(cursor, *args):
+        cursor.execute(f"""
+                    INSERT INTO treatments
+                    (name, duration, price, description)
+                    VALUES(%s, %s, %s, %s)""", args
+                       )
+
+    @staticmethod
+    @connecting_to_the_database
+    def del_treatment(cursor, *args):
+        cursor.execute(f"""
+                    DELETE FROM treatments
+                    WHERE name=%s""", args
+                       )
 
     @staticmethod
     @connecting_to_the_database
@@ -188,17 +214,6 @@ class DataBase:
         cursor.execute(f"""
                     DELETE FROM schedule_changes
                     WHERE date_trunc('day', start_date) = %s::date""", args  # We leave only the date for the search
-                       )
-
-
-# '''************************************ treatments *************************************'''
-    @staticmethod
-    @connecting_to_the_database
-    def add_treatment(cursor, *args):
-        cursor.execute(f"""
-                    INSERT INTO treatments
-                    (name, duration, price, description)
-                    VALUES(%s, %s, %s, %s)""", args
                        )
 
 
