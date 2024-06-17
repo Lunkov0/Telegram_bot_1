@@ -19,5 +19,9 @@ async def make_an_appointment(callback: types.CallbackQuery):
         builder.add(types.InlineKeyboardButton(text=service, callback_data=f'make_an_appointment_{service_id}'))
     builder.adjust(2)  # Кол-во столбцов
 
-    await callback.message.answer(text='Some', reply_markup=builder.as_markup(resize_keyboard=False))
+    await callback.message.answer(text='Выберете процедуру', reply_markup=builder.as_markup(resize_keyboard=False))
 
+
+@router.callback_query(F.data == 'make_an_appointment')
+async def m_a_treatment(callback: types.CallbackQuery):
+    txt = 'Вы выбрали процедуру'

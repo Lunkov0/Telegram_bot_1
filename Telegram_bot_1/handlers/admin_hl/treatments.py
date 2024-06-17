@@ -32,21 +32,22 @@ def validate_integer(integer):
         return False
 
 
-
 router = Router()
 
 
 @router.callback_query(F.data == 'treatments')
 async def treatments(callback: types.CallbackQuery):
-    await callback.message.answer(text='Что будем делать с процедурами?', reply_markup=kb_treatments)
+    txt = dataBase.treatments_get_names()
+    txt = ', '.join([name[1] for name in txt])
+    txt = f'Что будем делать с процедурами\n\nСейчас в базе данных следующие процедуры:\n{txt}?'
+    await callback.message.answer(text=txt, reply_markup=kb_treatments)
 
 
 # Поля Процедуры для Машины состояний - name, duration, price, description
 @router.callback_query(F.data == 'add_treatments')
 @router.callback_query(F.data == 'change_treatment')
 async def add_treatments(callback: types.CallbackQuery, state: FSMContext):
-    txt = dataBase.treatments_get_names()
-    await callback.message.answer(text=f'Введи краткое название добавляемой процедуры\n{txt}')
+    await callback.message.answer(text=f'Введи краткое название добавляемой процедуры')
     await state.set_state(TreatmentFSM.name)
 
 
@@ -113,7 +114,7 @@ async def delete_treatments(callback: types.CallbackQuery):
     builder = InlineKeyboardBuilder()
     for treatment in treatments:
         builder.add(types.InlineKeyboardButton(text=treatment[1], callback_data=f'del_treatment_{treatment[1]}'))
-    builder.adjust(3)
+    builder.adjust(2)
     await callback.message.answer(text=txt, reply_markup=builder.as_markup())
 
 
@@ -121,4 +122,4 @@ async def delete_treatments(callback: types.CallbackQuery):
 async def delete_treatment(callback: types.CallbackQuery):
     treatment_to_del = callback.data.replace('del_treatment_', '')
     dataBase.del_treatment(treatment_to_del)
-    await callback.message.answer(text='Принято')
+    await callback.message.answer(text='Процедура удалена.')

@@ -116,7 +116,6 @@ async def put_c_s_intersection(callback: types.CallbackQuery, state: FSMContext)
 @router.callback_query(F.data == 'c_s_type_2')
 async def delete_c_s_intersection(callback: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
-    # await callback.message.answer(data['date'])
     dataBase.delete_schedule_changes(data['date'])
 
     txt = 'Все изменения в расписании на этот день удалены. Возвращение на панель администратора'
