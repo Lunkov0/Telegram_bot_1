@@ -137,7 +137,7 @@ class DataBase:
 
     @staticmethod
     @connecting_to_the_database
-    def appointment_add(cursor, *args):
+    def add_appointment(cursor, *args):
         cursor.execute(f"""INSERT INTO appointments
                     (full_name, appointment_time, contact_phone, users_tg_id, services_id)
                     VALUES(%s, %s, %s, %s, %s);""", args)

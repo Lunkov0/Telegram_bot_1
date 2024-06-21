@@ -38,7 +38,6 @@ async def change_of_schedule(callback: types.CallbackQuery, state: FSMContext):
         txt = ''
 
     txt += ('Расписание на какую дату поменяем?')
-    # await state.set_state(ChangeFSM.date)
     await callback.message.answer(text=txt, reply_markup=builder.as_markup())
 
 
@@ -59,19 +58,11 @@ async def c_s_days(callback: types.CallbackQuery, state: FSMContext):
                                   reply_markup=builder.as_markup())
 
 
-# @router.message(ChangeFSM.intersection)
 @router.callback_query(F.data.startswith('c_s_hours_start_'))
 async def c_s_time(callback: types.CallbackQuery, state: FSMContext):
     data = callback.data.split('_')
     hour_start = data[-1]
     await state.update_data(hour_start=hour_start)
-
-    # Достаем данные из машины состояний
-    # data = await state.get_data()
-    # days = data.get('date')
-    # hour_start = data.get('hour_start')
-    # await callback.message.answer(days)
-    # await callback.message.answer(hour_start)
 
     builder = InlineKeyboardBuilder()
     for h in range(5, 24):
@@ -79,7 +70,6 @@ async def c_s_time(callback: types.CallbackQuery, state: FSMContext):
         builder.add(types.InlineKeyboardButton(text=s_hour, callback_data=f'c_s_hours_end_{s_hour}'))
     builder.adjust((3))
 
-    # await state.set_state(ChangeFSM.intersection)
     await callback.message.answer(text=f'Начинаешь в {hour_start}, а во сколько планируешь закончить свой рабочий день?',
                                   reply_markup=builder.as_markup())
 
@@ -111,7 +101,9 @@ async def put_c_s_intersection(callback: types.CallbackQuery, state: FSMContext)
     else:
         txt_type_of_day = "рабочий"
 
-    await callback.message.answer(f'В расписание записан {txt_type_of_day} день с {start_date} до {end_date}')
+    await callback.message.answer(text=f'В расписание записан {txt_type_of_day} день с {start_date} до {end_date}'
+                                       f'\n\nВозврат в панель администратора',
+                                  reply_markup=kb_admin)
 
 @router.callback_query(F.data == 'c_s_type_2')
 async def delete_c_s_intersection(callback: types.CallbackQuery, state: FSMContext):
