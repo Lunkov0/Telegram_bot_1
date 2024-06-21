@@ -112,3 +112,4 @@ async def delete_c_s_intersection(callback: types.CallbackQuery, state: FSMConte
 
     txt = 'Все изменения в расписании на этот день удалены. Возвращение на панель администратора'
     await callback.message.answer(text=txt, reply_markup=kb_admin)
+

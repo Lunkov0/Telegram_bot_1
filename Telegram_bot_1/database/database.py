@@ -150,6 +150,13 @@ class DataBase:
 
     @staticmethod
     @connecting_to_the_database
+    def get_weekday_schedule(cursor, *args):
+        cursor.execute('''SELECT * FROM schedule
+                       WHERE day_of_the_week = %s''', args)
+        return cursor.fetchall()
+
+    @staticmethod
+    @connecting_to_the_database
     def schedule_set_s(cursor, *args):
         cursor.execute('UPDATE schedule SET start_time = %s WHERE day_of_the_week = %s', args)
 

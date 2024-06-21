@@ -12,7 +12,7 @@ router = Router()
 
 
 def appointment_time():
-    weekday = x = datetime.date.today().weekday()
+    weekday = datetime.date.today().weekday()
 
 
 
@@ -36,3 +36,10 @@ async def m_a_treatment(callback: types.CallbackQuery):
     txt2 = dataBase.get_all_schedule_changes()
     txt3 = txt + txt1 + str(txt2)
     await callback.message.answer(text=txt3)
+
+@router.message(F.text == '1')
+async def somee(message: types.Message):
+    t = datetime.date.today().weekday()
+    await message.answer(text=str(t))
+    txt = str(dataBase.get_weekday_schedule(t))
+    await message.answer(text=txt)
