@@ -3,16 +3,33 @@ from aiogram.filters import Command
 from aiogram import types
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 import datetime
+import locale
 
 # from keyboards.kStart import
 from database.database import dataBase
+
+
+# Установка русской локализации для модуля datetime
+locale.setlocale(
+    category=locale.LC_ALL,
+    locale="Russian"  # Note: do not use "de_DE" as it doesn't work
+)
 
 
 router = Router()
 
 
 def appointment_time():
-    weekday = datetime.date.today().weekday()
+    '''Возвращает итоговое расписание на месяц (пересечения основного расписания и изменений в нём)'''
+    schedule = dataBase.schedule_get()
+    main_schedule = {}
+    for id, day_of_the_week, start_time, end_time in schedule:
+        main_schedule[day_of_the_week] = [start_time, end_time]
+
+    changed_schedule = dataBase.get_all_schedule_changes()
+
+
+    return main_schedule
 
 
 
@@ -39,7 +56,6 @@ async def m_a_treatment(callback: types.CallbackQuery):
 
 @router.message(F.text == '1')
 async def somee(message: types.Message):
-    t = datetime.date.today().weekday()
-    await message.answer(text=str(t))
-    txt = str(dataBase.get_weekday_schedule(t))
+    txt = str(appointment_time())
     await message.answer(text=txt)
+

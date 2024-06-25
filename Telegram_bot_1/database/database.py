@@ -151,7 +151,7 @@ class DataBase:
     @staticmethod
     @connecting_to_the_database
     def get_weekday_schedule(cursor, *args):
-        cursor.execute('''SELECT * FROM schedule
+        cursor.execute('''SELECT start_time, end_time FROM schedule
                        WHERE day_of_the_week = %s''', args)
         return cursor.fetchall()
 
@@ -217,6 +217,13 @@ class DataBase:
 
     @staticmethod
     @connecting_to_the_database
+    def CHANGEtHIS(cursor, *args):
+        cursor.execute('''SELECT start_time, end_time FROM schedule
+                       WHERE day_of_the_week = %s''', args)
+        return cursor.fetchall()
+
+    @staticmethod
+    @connecting_to_the_database
     def delete_schedule_changes(cursor, *args):
         cursor.execute(f"""
                     DELETE FROM schedule_changes
@@ -225,4 +232,4 @@ class DataBase:
 
 
 dataBase = DataBase()
-print(dataBase.schedule_get())
+# print(dataBase.schedule_get())
