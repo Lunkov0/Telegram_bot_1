@@ -12,7 +12,7 @@ from database.database import dataBase
 # Установка русской локализации для модуля datetime
 locale.setlocale(
     category=locale.LC_ALL,
-    locale="Russian"  # Note: do not use "de_DE" as it doesn't work
+    locale="Russian"
 )
 
 
@@ -21,14 +21,18 @@ router = Router()
 
 def appointment_time():
     '''Возвращает итоговое расписание на месяц (пересечения основного расписания и изменений в нём)'''
+
+    # Достанем основное расписание для каждого дня недели в формате {3: ['12:00:00', '22:00:00']}
     schedule = dataBase.schedule_get()
     main_schedule = {}
     for id, day_of_the_week, start_time, end_time in schedule:
         main_schedule[day_of_the_week] = [start_time, end_time]
 
     changed_schedule = dataBase.get_all_schedule_changes()
+    for id, start_date, end_date, is_it_a_working_day in changed_schedule:
+        pass
 
-
+    # Возвращаем Список из 30-ти дней - {'2034-12-29': [['12:00:00', '14:00:00'], ['16:00:00', '22:00:00']...]}
     return main_schedule
 
 
@@ -58,4 +62,3 @@ async def m_a_treatment(callback: types.CallbackQuery):
 async def somee(message: types.Message):
     txt = str(appointment_time())
     await message.answer(text=txt)
-
