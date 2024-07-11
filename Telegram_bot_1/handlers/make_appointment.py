@@ -28,11 +28,15 @@ def appointment_time():
     for id, day_of_the_week, start_time, end_time in schedule:
         main_schedule[day_of_the_week] = [start_time, end_time]
 
-    changed_schedule = dataBase.get_all_schedule_changes()
-    for id, start_date, end_date, is_it_a_working_day in changed_schedule:
-        pass
+    schedule_changes = dataBase.get_all_schedule_changes()
+    changed_schedule = {}
+    for id, start_date, end_date, is_it_a_working_day in schedule_changes:
+        if changed_schedule.get(start_date.date(), False):
+            changed_schedule[start_date.date()].append([start_date, end_date, is_it_a_working_day])
+        else:
+            changed_schedule[start_date.date()] = [[start_date, end_date, is_it_a_working_day]]
 
-    # Возвращаем Список из 30-ти дней - {'2034-12-29': [['12:00:00', '14:00:00'], ['16:00:00', '22:00:00']...]}
+    # Возвращаем Словарь из 30-ти дней - {'2034-12-29': [['12:00:00', '14:00:00'], ['16:00:00', '22:00:00']...]}
     return main_schedule
 
 

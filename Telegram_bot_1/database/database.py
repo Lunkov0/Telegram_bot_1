@@ -1,5 +1,6 @@
 import psycopg2
 from database.config import HOST, USER, PASSWORD, DB_NAME, PORT
+import datetime
 # from config import HOST, USER, PASSWORD, DB_NAME, PORT
 
 
@@ -232,4 +233,4 @@ class DataBase:
 
 
 dataBase = DataBase()
-# print(dataBase.schedule_get())
+print(dataBase.get_all_schedule_changes())
