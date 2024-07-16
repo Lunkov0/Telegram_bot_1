@@ -3,12 +3,18 @@ from aiogram import types
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 import constants
-from keyboards.kAdmin import kb_admin
+from keyboards.kAdmin import kb_admin, kb_type_of_schedule
 from database.database import dataBase
 from constants import WEEKDAY
 
 
 router = Router()
+
+
+@router.callback_query(F.data == 'schedule_type')
+async def schedule_type(callback: types.CallbackQuery):
+    txt = 'Выбери тип расписания для его изменения'
+    await callback.message.answer(text=txt, reply_markup=kb_type_of_schedule)
 
 
 # Пишет текущее расписание. Выдает дни недели для смены расписания.
@@ -26,6 +32,12 @@ async def schedule(callback: types.CallbackQuery):
 
     txt = 'Твоё текущее расписание:\n\n' + '\n'.join(weekday) + '\n\n Кнопками ниже можно изменить часы работы'
     await callback.message.answer(text=txt, reply_markup=builder.as_markup(resize_keyboard=False))
+
+
+@router.callback_query(F.data == 'constant_breaks')
+async def schedule(callback: types.CallbackQuery):
+    txt = 'Перерывы. на каждый день? на день недели?'
+    await callback.message.answer(text=txt, reply_markup=kb_type_of_schedule)
 
 
 # Меняем время начала работы стандартного расписания

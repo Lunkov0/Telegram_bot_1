@@ -87,6 +87,18 @@ class DataBase:
                 );
             ''')
 
+    @staticmethod
+    @connecting_to_the_database
+    def create_table_constant_breaks(cursor):
+        cursor.execute('''
+                CREATE TABLE IF NOT EXISTS constant_breaks(
+                    id SERIAL PRIMARY KEY,
+                    day_of_the_week SMALLINT,
+                    start_date TIMESTAMP,
+                    end_date TIMESTAMP,
+                );
+            ''')
+
     def __init__(self):
         self.create_table_treatments()
         self.create_table_appointments()
@@ -234,3 +246,4 @@ class DataBase:
 
 dataBase = DataBase()
 print(dataBase.get_all_schedule_changes())
+print(datetime.date.today().weekday())

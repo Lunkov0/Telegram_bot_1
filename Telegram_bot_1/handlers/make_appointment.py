@@ -22,12 +22,13 @@ router = Router()
 def appointment_time():
     '''Возвращает итоговое расписание на месяц (пересечения основного расписания и изменений в нём)'''
 
-    # Достанем основное расписание для каждого дня недели в формате {3: ['12:00:00', '22:00:00']}
+    # Достанем основное расписание для каждого дня недели в формате {3: [['12:00:00', '22:00:00'], ...]}
     schedule = dataBase.schedule_get()
     main_schedule = {}
     for id, day_of_the_week, start_time, end_time in schedule:
         main_schedule[day_of_the_week] = [start_time, end_time]
 
+    # Достанем изменения в расписании {'2034-12-29': [['12:00:00', '14:00:00'], ['16:00:00', '22:00:00']...]}
     schedule_changes = dataBase.get_all_schedule_changes()
     changed_schedule = {}
     for id, start_date, end_date, is_it_a_working_day in schedule_changes:
@@ -36,8 +37,18 @@ def appointment_time():
         else:
             changed_schedule[start_date.date()] = [[start_date, end_date, is_it_a_working_day]]
 
+    # Сгенерируем расписание для следующих 30 дней
+    date_now = datetime.date.today()
+    schedule = {}
+    for i in range(30):
+        date = date_now + datetime.timedelta(days=i)
+        hours = date.weekday()
+        # schedule[date] =
+
+
     # Возвращаем Словарь из 30-ти дней - {'2034-12-29': [['12:00:00', '14:00:00'], ['16:00:00', '22:00:00']...]}
-    return main_schedule
+    return schedule
+
 
 
 

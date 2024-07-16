@@ -2,7 +2,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 bt = [
     [
-        InlineKeyboardButton(text='Основной режим работы', callback_data='schedule')
+        InlineKeyboardButton(text='Основной режим работы', callback_data='schedule_type')
     ],
     [
         InlineKeyboardButton(text='Исключения для расписания', callback_data='change_of_schedule'),
@@ -13,6 +13,18 @@ bt = [
 ]
 kb_admin = InlineKeyboardMarkup(
     inline_keyboard=bt,
+)
+
+bt4 = [
+    [
+        InlineKeyboardButton(text='Основное рабочее время', callback_data='schedule')
+    ],
+    [
+        InlineKeyboardButton(text='Постоянные перерывы', callback_data='constant_breaks'),
+    ],
+]
+kb_type_of_schedule = InlineKeyboardMarkup(
+    inline_keyboard=bt4,
 )
 
 bt0 = [
