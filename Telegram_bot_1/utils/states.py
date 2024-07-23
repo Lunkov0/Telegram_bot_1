@@ -14,3 +14,8 @@ class TreatmentFSM(StatesGroup):
     price = State()
     description = State()
     final = State()
+
+
+class ConstantBreaksFSM(StatesGroup):
+    start_time = State()
+    end_time = State()

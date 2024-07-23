@@ -93,9 +93,8 @@ class DataBase:
         cursor.execute('''
                 CREATE TABLE IF NOT EXISTS constant_breaks(
                     id SERIAL PRIMARY KEY,
-                    day_of_the_week SMALLINT,
-                    start_date TIMESTAMP,
-                    end_date TIMESTAMP,
+                    start_time TIME,
+                    end_time TIME
                 );
             ''')
 
@@ -104,6 +103,7 @@ class DataBase:
         self.create_table_appointments()
         self.create_table_schedule()
         self.create_table_schedule_changes()
+        self.create_table_constant_breaks()
 
     @staticmethod
     @connecting_to_the_database
@@ -230,20 +230,39 @@ class DataBase:
 
     @staticmethod
     @connecting_to_the_database
-    def CHANGEtHIS(cursor, *args):
-        cursor.execute('''SELECT start_time, end_time FROM schedule
-                       WHERE day_of_the_week = %s''', args)
-        return cursor.fetchall()
-
-    @staticmethod
-    @connecting_to_the_database
     def delete_schedule_changes(cursor, *args):
         cursor.execute(f"""
                     DELETE FROM schedule_changes
                     WHERE date_trunc('day', start_date) = %s::date""", args  # We leave only the date for the search
                        )
 
+    @staticmethod
+    @connecting_to_the_database
+    def delete_table_constant_breaks(cursor):
+        cursor.execute(f'''DELETE FROM constant_breaks''')  # Таким образом удаляется вся таблица
+
+    @staticmethod
+    @connecting_to_the_database
+    def add_constant_breaks(cursor, *args):
+        cursor.execute(f"""INSERT INTO constant_breaks
+                        (start_time, end_time)
+                        VALUES(%s, %s);""", args)
+
+
+    @staticmethod
+    @connecting_to_the_database
+    def get_constant_breaks(cursor):
+        cursor.execute(f"""SELECT * FROM constant_breaks;""")
+        return cursor.fetchall()
+
+
+    @staticmethod
+    @connecting_to_the_database
+    def drop(cursor):
+        cursor.execute(f"""DROP TABLE constant_breaks;""")
+
 
 dataBase = DataBase()
-print(dataBase.get_all_schedule_changes())
+print(dataBase.get_constant_breaks())
 print(datetime.date.today().weekday())
+

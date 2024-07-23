@@ -1,11 +1,13 @@
 from aiogram import Router, F
 from aiogram import types
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.fsm.context import FSMContext
 
 import constants
 from keyboards.kAdmin import kb_admin, kb_type_of_schedule
 from database.database import dataBase
 from constants import WEEKDAY
+from utils.states import ConstantBreaksFSM
 
 
 router = Router()
@@ -35,9 +37,12 @@ async def schedule(callback: types.CallbackQuery):
 
 
 @router.callback_query(F.data == 'constant_breaks')
-async def schedule(callback: types.CallbackQuery):
-    txt = 'Перерывы. на каждый день? на день недели?'
-    await callback.message.answer(text=txt, reply_markup=kb_type_of_schedule)
+async def constant_breaks(callback: types.CallbackQuery, state: FSMContext):
+    txt = ('Установи время для перерыва на каждый день. Здесь лучше указать перерыв на обед.'
+           'При установке перерыва, предыдущая настройка постоянного перерыва удаляется'
+           '\n\nСейчас введи начало перерыва. Формат ввода данных: "08:00"')
+    await state.set_state(ConstantBreaksFSM.start_time)
+    await callback.message.answer(text=txt)
 
 
 # Меняем время начала работы стандартного расписания
