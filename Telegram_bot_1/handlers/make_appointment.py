@@ -28,6 +28,11 @@ def appointment_time():
     for id, day_of_the_week, start_time, end_time in schedule:
         main_schedule[day_of_the_week] = [start_time, end_time]
 
+    # Достанем постоянный перерыв
+    constant_breaks = dataBase.get_constant_breaks()
+    id, start_time, end_time = constant_breaks
+
+
     # Достанем изменения в расписании {'2034-12-29': [['12:00:00', '14:00:00'], ['16:00:00', '22:00:00']...]}
     schedule_changes = dataBase.get_all_schedule_changes()
     changed_schedule = {}
