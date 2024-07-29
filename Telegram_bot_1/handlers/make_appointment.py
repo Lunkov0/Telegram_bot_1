@@ -32,10 +32,16 @@ def appointment_time():
         main_schedule[day_of_the_week] = [[start_time, end_time]]
 
         # Добавим постоянные перерывы
-        if start_time < start_time_constant_breaks and end_time > end_time_constant_breaks:
+        if start_time <= start_time_constant_breaks and end_time >= end_time_constant_breaks:
             a = end_time
             main_schedule[day_of_the_week][0][1] = start_time_constant_breaks
             main_schedule[day_of_the_week][0].append([end_time_constant_breaks, a])
+        elif start_time >= start_time_constant_breaks and end_time <= end_time_constant_breaks:
+            main_schedule[day_of_the_week][0][0] = []
+        elif start_time >= start_time_constant_breaks and end_time >= end_time_constant_breaks:
+            main_schedule[day_of_the_week][0][0] = max(end_time_constant_breaks, start_time)
+        elif start_time <= start_time_constant_breaks and end_time <= end_time_constant_breaks:
+            main_schedule[day_of_the_week][0][1] = min(end_time, start_time_constant_breaks)
 
     # Достанем изменения в расписании {'2034-12-29': [['12:00:00', '14:00:00'], ['16:00:00', '22:00:00']...]}
     schedule_changes = dataBase.get_all_schedule_changes()
