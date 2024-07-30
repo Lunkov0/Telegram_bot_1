@@ -65,8 +65,6 @@ def appointment_time():
     return schedule
 
 
-
-
 @router.callback_query(F.data == 'make_an_appointment')
 async def make_an_appointment(callback: types.CallbackQuery):
     treatments = dataBase.treatments_get_names()
