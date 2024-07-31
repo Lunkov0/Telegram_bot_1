@@ -239,7 +239,7 @@ class DataBase:
     @staticmethod
     @connecting_to_the_database
     def delete_table_constant_breaks(cursor):
-        cursor.execute(f'''DELETE FROM constant_breaks''')  # Таким образом удаляется вся таблица
+        cursor.execute(f'''DELETE FROM constant_breaks''')  # Таким образом очищается вся таблица
 
     @staticmethod
     @connecting_to_the_database
