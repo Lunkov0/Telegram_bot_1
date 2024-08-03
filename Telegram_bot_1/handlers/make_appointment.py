@@ -18,38 +18,12 @@ locale.setlocale(
 
 router = Router()
 
-constant_breaks = dataBase.get_constant_breaks()[0]  # Удалить
-schedule = dataBase.schedule_get()  # Удалить
-def tme(constant_breaks, schedule):
-    '''Возвращает итоговое расписание на месяц (пересечения основного расписания и изменений в нём)'''
-    # Достанем постоянный перерыв
-    # constant_breaks = dataBase.get_constant_breaks()[0]
-    id, start_time_constant_breaks, end_time_constant_breaks = constant_breaks
-
-    # Достанем основное расписание для каждого дня недели в формате {3: [['12:00:00', '22:00:00'], ...]}
-    # schedule = dataBase.schedule_get()
-    main_schedule = {}
-    for id, day_of_the_week, start_time, end_time in schedule:
-        main_schedule[day_of_the_week] = [[start_time, end_time]]
-
-        # Добавим постоянные перерывы
-        if start_time <= start_time_constant_breaks and end_time >= end_time_constant_breaks:
-            a = end_time
-            main_schedule[day_of_the_week][0][1] = start_time_constant_breaks
-            main_schedule[day_of_the_week][0].append([end_time_constant_breaks, a])
-        elif start_time >= start_time_constant_breaks and end_time <= end_time_constant_breaks:
-            main_schedule[day_of_the_week][0][0] = []
-        elif start_time >= start_time_constant_breaks and end_time >= end_time_constant_breaks:
-            main_schedule[day_of_the_week][0][0] = max(end_time_constant_breaks, start_time)
-        elif start_time <= start_time_constant_breaks and end_time <= end_time_constant_breaks:
-            main_schedule[day_of_the_week][0][1] = min(end_time, start_time_constant_breaks)
-    return main_schedule
 
 def appointment_time():
     '''Возвращает итоговое расписание на месяц (пересечения основного расписания и изменений в нём)'''
     # Достанем постоянный перерыв
     constant_breaks = dataBase.get_constant_breaks()
-    id, start_time_constant_breaks, end_time_constant_breaks = constant_breaks
+    start_time_constant_breaks, end_time_constant_breaks = constant_breaks[0]
 
     # Достанем основное расписание для каждого дня недели в формате {3: [['12:00:00', '22:00:00'], ...]}
     schedule = dataBase.schedule_get()
@@ -68,6 +42,7 @@ def appointment_time():
             main_schedule[day_of_the_week][0][0] = max(end_time_constant_breaks, start_time)
         elif start_time <= start_time_constant_breaks and end_time <= end_time_constant_breaks:
             main_schedule[day_of_the_week][0][1] = min(end_time, start_time_constant_breaks)
+    return main_schedule
 
     # Достанем изменения в расписании {'2034-12-29': [['12:00:00', '14:00:00'], ['16:00:00', '22:00:00']...]}
     schedule_changes = dataBase.get_all_schedule_changes()
@@ -116,3 +91,8 @@ async def m_a_treatment(callback: types.CallbackQuery):
 async def somee(message: types.Message):
     txt = str(appointment_time())
     await message.answer(text=txt)
+
+
+constant_breaks = dataBase.get_constant_breaks()
+# print(constant_breaks[0])
+print(appointment_time())

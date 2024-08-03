@@ -92,7 +92,6 @@ class DataBase:
     def create_table_constant_breaks(cursor):
         cursor.execute('''
                 CREATE TABLE IF NOT EXISTS constant_breaks(
-                    id SERIAL PRIMARY KEY,
                     start_time TIME,
                     end_time TIME
                 );
@@ -263,6 +262,6 @@ class DataBase:
 
 
 dataBase = DataBase()
-print(dataBase.get_constant_breaks())
-print(datetime.date.today().weekday())
+# print(dataBase.get_constant_breaks())
+# print(datetime.date.today().weekday())
 
