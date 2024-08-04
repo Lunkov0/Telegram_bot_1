@@ -93,6 +93,6 @@ async def somee(message: types.Message):
     await message.answer(text=txt)
 
 
-constant_breaks = dataBase.get_constant_breaks()
+x = dataBase.get_all_schedule_changes()
 # print(constant_breaks[0])
-print(appointment_time())
+print(x)
