@@ -16,6 +16,12 @@ class TestMergeTime(unittest.TestCase):
         res = []
         self.assertEqual(merge_time(main, changes), res)
 
+    def test_many(self):
+        main = [[time(9), time(15)], [time(16), time(20)]]
+        changes = [time(13), time(14)]
+        res = [[time(9), time(13)], [time(14), time(15)], [time(16), time(20)]]
+        self.assertEqual(merge_time(main, changes), res)
+
 
 if __name__ == '__main__':
     unittest.main()
