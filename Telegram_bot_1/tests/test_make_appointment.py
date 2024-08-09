@@ -52,6 +52,12 @@ class TestMergeTime(unittest.TestCase):
         res = [[time(9), time(15)], [time(16), time(20)]]
         self.assertEqual(merge_time(main, changes), res)
 
+    def test_working(self):
+        main = [[time(9), time(15)], [time(16), time(20)]]
+        changes = [time(15), time(16)]
+        res = [[time(9), time(20)]]
+        self.assertEqual(merge_time(main, changes, 1), res)
+
 
 if __name__ == '__main__':
     unittest.main()
