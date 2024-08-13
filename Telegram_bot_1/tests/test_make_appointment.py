@@ -30,7 +30,7 @@ class TestMergeTime(unittest.TestCase):
 
     def test_many3(self):
         main = [[time(9), time(15)], [time(16), time(20)]]
-        changes = [time(8), time(24)]
+        changes = [time(8), time(23)]
         res = []
         self.assertEqual(merge_time(main, changes), res)
 
@@ -53,9 +53,9 @@ class TestMergeTime(unittest.TestCase):
         self.assertEqual(merge_time(main, changes), res)
 
     def test_working(self):
-        main = [[time(9), time(15)], [time(16), time(20)]]
+        main = [[time(9), time(14)], [time(17), time(20)]]
         changes = [time(15), time(16)]
-        res = [[time(9), time(20)]]
+        res = [[time(9), time(14)], [time(15), time(16)], [time(17), time(20)]]
         self.assertEqual(merge_time(main, changes, 1), res)
 
 
