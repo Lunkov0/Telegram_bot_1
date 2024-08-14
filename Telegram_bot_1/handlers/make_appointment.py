@@ -17,37 +17,37 @@ locale.setlocale(
 router = Router()
 
 
-def merge_time(main: list[datetime],
+# def merge_time(main: list[datetime],
+#                second: list[datetime],
+#                is_it_working_day: int = 0) -> list[list[datetime]]:
+#
+#     if not second:
+#         return main
+#     start2, end2 = second[0], second[1]
+#     res = []
+#
+#     if is_it_working_day == 0:
+#         start1, end1 = sorted(main)
+#         if start1 <= start2 and end1 >= end2:
+#             res.append([start1, start2])
+#             res.append([end2, end1])
+#         elif start1 >= start2 and end1 <= end2:
+#             pass
+#         elif start1 >= start2 and end1 >= end2:
+#             res.append([max(start1, end2), end1])
+#         elif start1 <= start2 and end1 <= end2:
+#             res.append([start1, min(end1, start2)])
+
+
+def merge_time(main: list[list[datetime]],
                second: list[datetime],
                is_it_working_day: int = 0) -> list[list[datetime]]:
 
     if not second:
         return main
-    start2, end2 = second[0], second[1]
-    res = []
-
-    if is_it_working_day == 0:
-        start1, end1 = sorted(main)
-        if start1 <= start2 and end1 >= end2:
-            res.append([start1, start2])
-            res.append([end2, end1])
-        elif start1 >= start2 and end1 <= end2:
-            pass
-        elif start1 >= start2 and end1 >= end2:
-            res.append([max(start1, end2), end1])
-        elif start1 <= start2 and end1 <= end2:
-            res.append([start1, min(end1, start2)])
-
-def merge_time2(main: list[list[datetime]],
-               second: list[datetime],
-               is_it_working_day: int = 0) -> list[list[datetime]]:
-
-    if not second:
-        return main
 
     res = []
     start2, end2 = second[0], second[1]
-    add = []
 
     if is_it_working_day == 0:
         for start1, end1 in sorted(main):
@@ -80,6 +80,7 @@ def merge_time2(main: list[list[datetime]],
                 else:
                     res.append([start1, end2])
 
+    [res.remove(x) for x in res if res.count(x) > 1]
     return res
 
 
