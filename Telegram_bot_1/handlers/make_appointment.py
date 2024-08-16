@@ -64,11 +64,11 @@ def merge_time(main: list[list[datetime]],
     elif is_it_working_day == 1:
         for start1, end1 in sorted(main):
             if start1 <= start2 and end1 >= end2:
-                pass
+                res.append([start1, end1])
             elif start1 >= start2 and end1 <= end2:
                 res.append([start2, end2])
             elif start1 >= start2 and end1 >= end2:
-                if end2 <= start1:
+                if end2 < start1:
                     res.append([start2, end2])
                     res.append([start1, end1])
                 else:
@@ -81,7 +81,7 @@ def merge_time(main: list[list[datetime]],
                     res.append([start1, end2])
 
     [res.remove(x) for x in res if res.count(x) > 1]
-    return res
+    return sorted(res)
 
 
 def appointment_time():
