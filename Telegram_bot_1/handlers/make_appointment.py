@@ -54,8 +54,6 @@ def merge_time(main: list[list[datetime]],
             if start1 <= start2 and end1 >= end2:
                 res.append([start1, start2])
                 res.append([end2, end1])
-            elif start1 >= start2 and end1 <= end2:
-                pass
             elif start1 >= start2 and end1 >= end2:
                 res.append([max(start1, end2), end1])
             elif start1 <= start2 and end1 <= end2:
@@ -64,28 +62,21 @@ def merge_time(main: list[list[datetime]],
     elif is_it_working_day == 1:
         sec = [second[0], second[1]]
         for start1, end1 in sorted(main):
-            if start1 <= start2 and end1 >= end2:
+            if start1 > end2 or end1 < start2:
                 res.append([start1, end1])
-            elif start1 >= start2 and end1 <= end2:
-                pass
-            elif start1 >= start2 and end1 >= end2:
-                if end2 < start1:
-                    res.append([start1, end1])
-                else:
-                    res.append([start2, end1])
-                    end2 = end1
-                    sec = []
-            elif start1 <= start2 and end1 <= end2:
-                if end1 < start2:
-                    res.append([start1, end1])
-                else:
-                    res.append([start1, end2])
-                    sec = []
-                    start2 = start1
+
+            elif start1 <= start2 and end1 >= end2:
+                res.append([start1, end1])
+                start2, end2 = start1, end1
+                sec = []
+
+            else:
+                start2 = min(start1, start2)
+                end2 = max(end1, end2)
+                sec = [start2, end2]
+
         if sec:
             res.append(sec)
-
-    [res.remove(x) for x in res if res.count(x) > 1]
 
     return sorted(res)
 
