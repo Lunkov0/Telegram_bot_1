@@ -17,26 +17,12 @@ locale.setlocale(
 router = Router()
 
 
-# def merge_time(main: list[datetime],
-#                second: list[datetime],
-#                is_it_working_day: int = 0) -> list[list[datetime]]:
-#
-#     if not second:
-#         return main
-#     start2, end2 = second[0], second[1]
-#     res = []
-#
-#     if is_it_working_day == 0:
-#         start1, end1 = sorted(main)
-#         if start1 <= start2 and end1 >= end2:
-#             res.append([start1, start2])
-#             res.append([end2, end1])
-#         elif start1 >= start2 and end1 <= end2:
-#             pass
-#         elif start1 >= start2 and end1 >= end2:
-#             res.append([max(start1, end2), end1])
-#         elif start1 <= start2 and end1 <= end2:
-#             res.append([start1, min(end1, start2)])
+def str_to_date(str_date):
+    return datetime.datetime.strptime(str_date, '%Y-%m-%d').date()
+
+
+def date_to_str(date):
+    return date.strftime('%Y-%m-%d')
 
 
 def merge_time(main: list[list[datetime]],
@@ -81,6 +67,18 @@ def merge_time(main: list[list[datetime]],
     return sorted(res)
 
 
+def merge_many(main: list[list[datetime]],
+               second: list[list[datetime]],
+               is_it_working_day: int = 0) -> list[list[datetime]]:
+
+    res = []
+
+    for val in second:
+        res.extend(merge_time(main, val, is_it_working_day))
+
+    return res
+
+
 def appointment_time():
     '''Возвращает итоговое расписание на месяц (пересечения основного расписания и изменений в нём)'''
     # Достанем постоянный перерыв
@@ -105,7 +103,8 @@ def appointment_time():
         elif start_time <= start_time_constant_breaks and end_time <= end_time_constant_breaks:
             main_schedule[day_of_the_week][0][1] = min(end_time, start_time_constant_breaks)
 
-    # Достанем изменения в расписании {'2034-12-29': [['12:00:00', '14:00:00'], ['16:00:00', '22:00:00']...]}
+    # Достанем изменения в расписании {datetime.date(2024, 9, 3): [['12:00:00', '14:00:00', 1],
+    #                                  ['16:00:00', '22:00:00', 0]...]}
     schedule_changes = dataBase.get_all_schedule_changes()
     changed_schedule = {}
     for id, start_date, end_date, is_it_a_working_day in schedule_changes:
@@ -113,32 +112,19 @@ def appointment_time():
             changed_schedule[start_date.date()].append([start_date.time(), end_date.time(), is_it_a_working_day])
         else:
             changed_schedule[start_date.date()] = [[start_date.time(), end_date.time(), is_it_a_working_day]]
-    # return changed_schedule
-
-    # Сгенерируем расписание для следующих 30 дней
+    return changed_schedule
     date_now = datetime.date.today()
     schedule = {}
     for i in range(30):
         date_now += datetime.timedelta(days=i)
-        weekday_id = date_now.weekday()
         if changed_schedule.get(date_now, False):
-            schedule[date_now] = main_schedule[weekday_id]
+            schedule[date_now] = main_schedule[date_now.weekday()]
         else:
-            for id, start_time, end_time, is_it_working in changed_schedule[date_now]:
-                if is_it_working == 0:
-                    if start_time <= start_time_constant_breaks and end_time >= end_time_constant_breaks:
-                        a = end_time
-                        main_schedule[day_of_the_week][0][1] = start_time_constant_breaks
-                        main_schedule[day_of_the_week].append([end_time_constant_breaks, a])
-                    elif start_time >= start_time_constant_breaks and end_time <= end_time_constant_breaks:
-                        main_schedule[day_of_the_week][0][0] = []
-                    elif start_time >= start_time_constant_breaks and end_time >= end_time_constant_breaks:
-                        main_schedule[day_of_the_week][0][0] = max(end_time_constant_breaks, start_time)
-                    elif start_time <= start_time_constant_breaks and end_time <= end_time_constant_breaks:
-                        main_schedule[day_of_the_week][0][1] = min(end_time, start_time_constant_breaks)
+            main = main_schedule[date_now.weekday()]
+            changes = changed_schedule[date_now][:-1]
+            is_it_working = changed_schedule[-1]
 
-    # Возвращаем Словарь из 30-ти дней - {'2034-12-29': [['12:00:00', '14:00:00'], ['16:00:00', '22:00:00']...]}
-    return schedule
+            schedule[date_now] = merge_many()
 
 
 @router.callback_query(F.data == 'make_an_appointment')
@@ -169,5 +155,4 @@ async def somee(message: types.Message):
     await message.answer(text=txt)
 
 
-schedule_changes = dataBase.get_all_schedule_changes()
-print(schedule_changes)
+print(appointment_time())
