@@ -112,19 +112,26 @@ def appointment_time():
             changed_schedule[start_date.date()].append([start_date.time(), end_date.time(), is_it_a_working_day])
         else:
             changed_schedule[start_date.date()] = [[start_date.time(), end_date.time(), is_it_a_working_day]]
-    return changed_schedule
+
     date_now = datetime.date.today()
     schedule = {}
+    # return date_now, changed_schedule
+
     for i in range(30):
-        date_now += datetime.timedelta(days=i)
-        if changed_schedule.get(date_now, False):
+        if not changed_schedule.get(date_now, False):
             schedule[date_now] = main_schedule[date_now.weekday()]
+
         else:
             main = main_schedule[date_now.weekday()]
-            changes = changed_schedule[date_now][:-1]
-            is_it_working = changed_schedule[-1]
+            changes = changed_schedule[date_now]
 
-            schedule[date_now] = merge_many()
+            for start, end, is_it_working_day in changes:
+                schedule[date_now] = merge_time(main, [start, end], is_it_working_day)
+        date_now += datetime.timedelta(days=1)
+
+    return schedule
+
+
 
 
 @router.callback_query(F.data == 'make_an_appointment')
