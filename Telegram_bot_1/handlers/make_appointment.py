@@ -7,6 +7,7 @@ import locale
 
 # from keyboards.kStart import
 from database.database import dataBase
+from functions import list_to_keyboard
 
 # Установка русской локализации для модуля datetime
 locale.setlocale(
@@ -28,7 +29,6 @@ def date_to_str(date):
 def merge_time(main: list[list[datetime]],
                second: list[datetime],
                is_it_working_day: int = 0) -> list[list[datetime]]:
-
     if not second:
         return main
 
@@ -70,7 +70,6 @@ def merge_time(main: list[list[datetime]],
 def merge_many(main: list[list[datetime]],
                second: list[list[datetime]],
                is_it_working_day: int = 0) -> list[list[datetime]]:
-
     res = []
 
     for val in second:
@@ -132,8 +131,6 @@ def appointment_time():
     return schedule
 
 
-
-
 @router.callback_query(F.data == 'make_an_appointment')
 async def make_an_appointment(callback: types.CallbackQuery):
     treatments = dataBase.treatments_get_names()
@@ -153,6 +150,12 @@ async def m_a_treatment(callback: types.CallbackQuery):
 
     await callback.message.answer(text=txt)
 
+
+@router.message(F.text == '333')
+@router.callback_query(F.data.startswith('make_an_appointment_'))
+async def some(message: types.Message):
+    keyboard = list_to_keyboard(['1', '2', '3', '4', '5', '6', '3', '3', '41', '2', '5'], 3)
+    await message.answer(text='Some активирован!!!', reply_markup=keyboard)
 
 
 print(appointment_time())
