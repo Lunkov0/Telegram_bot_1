@@ -140,7 +140,7 @@ async def make_an_appointment(callback: types.CallbackQuery):
 
     builder = InlineKeyboardBuilder()
     for service_id, service in treatments:
-        builder.add(types.InlineKeyboardButton(text=service, callback_data=f'make_an_appointment_{service_id}'))
+        builder.add(types.InlineKeyboardButton(text=service, callback_data=f'make_an_appointment_{service}'))
     builder.adjust(2)  # Кол-во столбцов
 
     await callback.message.answer(text='Выберите процедуру', reply_markup=builder.as_markup(resize_keyboard=False))
@@ -149,17 +149,10 @@ async def make_an_appointment(callback: types.CallbackQuery):
 @router.callback_query(F.data.startswith('make_an_appointment_'))
 async def m_a_treatment(callback: types.CallbackQuery):
     treatment = callback.data.split('_')[-1]
-    txt = 'Вы выбрали процедуру'
-    txt1 = dataBase.schedule_get()
-    txt2 = dataBase.get_all_schedule_changes()
-    txt3 = txt + txt1 + str(txt2)
-    await callback.message.answer(text=txt3)
+    txt = 'Вы выбрали процедуру: ' + treatment
 
+    await callback.message.answer(text=txt)
 
-@router.message(F.text == '1')
-async def somee(message: types.Message):
-    txt = str(appointment_time())
-    await message.answer(text=txt)
 
 
 print(appointment_time())
