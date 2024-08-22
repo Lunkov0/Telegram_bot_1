@@ -132,6 +132,15 @@ class DataBase:
 
     @staticmethod
     @connecting_to_the_database
+    def get_treatment_duration(cursor, *args):
+        cursor.execute('''
+            SELECT duration
+            FROM treatments
+            WHERE name = %s
+        ''', args)
+
+    @staticmethod
+    @connecting_to_the_database
     def add_treatment(cursor, *args):
         cursor.execute(f"""
                     INSERT INTO treatments

@@ -2,12 +2,14 @@ from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram import types
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.fsm.context import FSMContext
 import datetime
 import locale
 
 # from keyboards.kStart import
 from database.database import dataBase
 from functions import list_to_keyboard
+from utils.states import MakeAppointmentFSM
 
 # Установка русской локализации для модуля datetime
 locale.setlocale(
@@ -131,24 +133,52 @@ def appointment_time():
     return schedule
 
 
+# @router.callback_query(F.data == 'make_an_appointment')
+# async def make_an_appointment(callback: types.CallbackQuery):
+#     treatments = dataBase.treatments_get_names()
+#
+#     builder = InlineKeyboardBuilder()
+#     for service_id, service in treatments:
+#         builder.add(types.InlineKeyboardButton(text=service, callback_data=f'make_an_appointment_{service}'))
+#     builder.adjust(2)  # Кол-во столбцов
+#
+#     await callback.message.answer(text='Выберите процедуру', reply_markup=builder.as_markup(resize_keyboard=False))
+
 @router.callback_query(F.data == 'make_an_appointment')
-async def make_an_appointment(callback: types.CallbackQuery):
+async def make_an_appointment(callback: types.CallbackQuery, state: FSMContext):
     treatments = dataBase.treatments_get_names()
+    keyboard = list_to_keyboard([val[1] for val in treatments])
+    await state.set_state(MakeAppointmentFSM.treatment)
 
-    builder = InlineKeyboardBuilder()
-    for service_id, service in treatments:
-        builder.add(types.InlineKeyboardButton(text=service, callback_data=f'make_an_appointment_{service}'))
-    builder.adjust(2)  # Кол-во столбцов
-
-    await callback.message.answer(text='Выберите процедуру', reply_markup=builder.as_markup(resize_keyboard=False))
+    await callback.message.answer(text='Выберите процедуру', reply_markup=keyboard)
 
 
-@router.callback_query(F.data.startswith('make_an_appointment_'))
-async def m_a_treatment(callback: types.CallbackQuery):
-    treatment = callback.data.split('_')[-1]
-    txt = 'Вы выбрали процедуру: ' + treatment
+# @router.callback_query(F.data.startswith('make_an_appointment_'))
+# async def m_a_treatment(callback: types.CallbackQuery):
+#     treatment = callback.data.split('_')[-1]
+#     txt = 'Вы выбрали процедуру: ' + treatment
+#
+#     await callback.message.answer(text=txt)
 
-    await callback.message.answer(text=txt)
+
+@router.callback_query(MakeAppointmentFSM.treatment)
+async def m_a_treatment(callback: types.CallbackQuery, state: FSMContext):
+    treatment = callback.data
+    await state.update_data(treatment=treatment)
+    txt = 'Вы выбрали процедуру: ' + treatment + '\nТеперь введи время начала'
+    await state.set_state(MakeAppointmentFSM.start_time)
+    schedule = appointment_time()
+    duration = dataBase.get_treatment_duration(str(treatment))
+    d = list_to_keyboard([duration])
+
+    await callback.message.answer(text=txt, reply_markup=d)
+
+
+@router.message(MakeAppointmentFSM.start_time)
+async def treatment_start_time(message: types.Message, state: FSMContext):
+    start_time = message.text
+    await state.update_data(start_time=start_time)
+    await message.answer(text=start_time)
 
 
 @router.message(F.text == '333')
