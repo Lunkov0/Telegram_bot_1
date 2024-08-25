@@ -132,12 +132,13 @@ class DataBase:
 
     @staticmethod
     @connecting_to_the_database
-    def get_treatment_duration(cursor, *args):
-        cursor.execute('''
+    def get_treatment_duration(cursor, name):
+        cursor.execute(f'''
             SELECT duration
             FROM treatments
             WHERE name = %s
-        ''', args)
+        ''', (name,))
+        return cursor.fetchone()
 
     @staticmethod
     @connecting_to_the_database
@@ -271,6 +272,4 @@ class DataBase:
 
 
 dataBase = DataBase()
-# print(dataBase.get_constant_breaks())
-# print(datetime.date.today().weekday())
-
+print(dataBase.get_treatment_duration('wr'))
