@@ -141,5 +141,8 @@ def treatment_schedule(treatment_name):
     duration = dataBase.get_treatment_duration(treatment_name)[0]
     res = {}
 
-    for
+    for val in schedule.values():
+        for time in val:
+            start_time = time[0]
+            end_time = time[1]
 
