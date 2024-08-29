@@ -139,10 +139,25 @@ def appointment_time():
 def treatment_schedule(treatment_name):
     schedule = appointment_time()
     duration = dataBase.get_treatment_duration(treatment_name)[0]
+    duration = datetime.timedelta(hours=duration.hour, minutes=duration.minute)
     res = {}
 
-    for val in schedule.values():
-        for time in val:
+    if not schedule:
+        return None
+
+    for day, schedule in schedule.items():
+        for time in schedule:
             start_time = time[0]
             end_time = time[1]
+
+            start_time = datetime.timedelta(hours=end_time.hour, minutes=end_time.minutes)
+
+
+            counter = duration
+
+            while counter < end_time:
+
+
+                counter += end_time
+
 
