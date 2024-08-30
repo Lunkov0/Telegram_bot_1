@@ -8,7 +8,7 @@ import locale
 
 # from keyboards.kStart import
 from database.database import dataBase
-from functions import list_to_keyboard, time_to_str
+from functions import list_to_keyboard, time_to_str, appointment_time, treatment_schedule
 from utils.states import MakeAppointmentFSM
 
 # Установка русской локализации для модуля datetime
@@ -89,14 +89,6 @@ async def make_an_appointment(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.answer(text='Выберите процедуру', reply_markup=keyboard)
 
 
-# @router.callback_query(F.data.startswith('make_an_appointment_'))
-# async def m_a_treatment(callback: types.CallbackQuery):
-#     treatment = callback.data.split('_')[-1]
-#     txt = 'Вы выбрали процедуру: ' + treatment
-#
-#     await callback.message.answer(text=txt)
-
-
 @router.callback_query(MakeAppointmentFSM.treatment)
 async def m_a_treatment(callback: types.CallbackQuery, state: FSMContext):
     treatment = callback.data
@@ -104,10 +96,9 @@ async def m_a_treatment(callback: types.CallbackQuery, state: FSMContext):
     txt = 'Вы выбрали процедуру: ' + treatment + '\nТеперь введи время начала'
     await state.set_state(MakeAppointmentFSM.start_time)
 
-    schedule = appointment_time()
+    schedule = treatment_schedule()
 
-    d = list_to_keyboard([duration])
-    await callback.message.answer(text=txt, reply_markup=d)
+    await callback.message.answer(text=txt, reply_markup=schedule)
 
 
 @router.message(MakeAppointmentFSM.start_time)

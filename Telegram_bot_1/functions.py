@@ -150,14 +150,21 @@ def treatment_schedule(treatment_name):
             start_time = time[0]
             end_time = time[1]
 
-            start_time = datetime.timedelta(hours=end_time.hour, minutes=end_time.minutes)
+            start_time = datetime.timedelta(hours=start_time.hour, minutes=start_time.minutes)
+            end_time = datetime.timedelta(hours=end_time.hour, minutes=end_time.minutes)
 
+            while start_time < end_time:
+                button = str(start_time)[:-3]
+                builder = InlineKeyboardBuilder()
 
-            counter = duration
+                builder.add(types.InlineKeyboardButton(
+                    text=button,
+                    callback_data=button))
+                builder.adjust(4)  # Кол-во столбцов
 
-            while counter < end_time:
+                start_time += duration
 
+    return builder.as_markup(resize_keyboard=False)
 
-                counter += end_time
 
 
