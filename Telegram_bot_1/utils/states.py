@@ -23,5 +23,5 @@ class ConstantBreaksFSM(StatesGroup):
 
 class MakeAppointmentFSM(StatesGroup):
     treatment = State()
-    start_time = State()
+    schedule = State()
     end_time = State()

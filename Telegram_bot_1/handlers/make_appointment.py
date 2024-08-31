@@ -93,19 +93,25 @@ async def make_an_appointment(callback: types.CallbackQuery, state: FSMContext):
 async def m_a_treatment(callback: types.CallbackQuery, state: FSMContext):
     treatment = callback.data
     await state.update_data(treatment=treatment)
-    txt = 'Вы выбрали процедуру: ' + treatment + '\nТеперь введи время начала'
-    await state.set_state(MakeAppointmentFSM.start_time)
+    await state.set_state(MakeAppointmentFSM.schedule)
 
-    schedule = treatment_schedule()
+    schedule = treatment_schedule(treatment)
+    await state.update_data(schedule=schedule)
 
-    await callback.message.answer(text=txt, reply_markup=schedule)
+    keyboard = list_to_keyboard([str(day) for day in schedule if schedule[day]])
+    # keyboard.add(types.InlineKeyboardButton(text='<< Отмена', callback_data='<< Отмена'))
+
+    txt = 'Вы выбрали процедуру: ' + treatment + ('.\nНиже показаны даты где есть свободное время.'
+                                                  ' Нажмите, чтобы увидеть сободные часы для записи.')
+
+    await callback.message.answer(text=txt, reply_markup=keyboard)
 
 
-@router.message(MakeAppointmentFSM.start_time)
-async def treatment_start_time(message: types.Message, state: FSMContext):
-    start_time = message.text
-    await state.update_data(start_time=start_time)
-    await message.answer(text=start_time)
+# @router.message(MakeAppointmentFSM.schedule)
+# async def schedule_make_appointment_fsm(callback: types.CallbackQuery, state: FSMContext):
+#     start_time = message.text
+#     await state.update_data(start_time=start_time)
+#     await message.answer(text=start_time)
 
 
 @router.message(F.text == '333')

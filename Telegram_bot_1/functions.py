@@ -93,19 +93,22 @@ def appointment_time():
     schedule = dataBase.schedule_get()
     main_schedule = {}
     for id, day_of_the_week, start_time, end_time in schedule:
-        main_schedule[day_of_the_week] = [[start_time, end_time]]
+        if start_time >= end_time:
+            main_schedule[day_of_the_week] = None
+        else:
+            main_schedule[day_of_the_week] = [[start_time, end_time]]
 
         # Добавим постоянные перерывы
-        if start_time <= start_time_constant_breaks and end_time >= end_time_constant_breaks:
-            a = end_time
-            main_schedule[day_of_the_week][0][1] = start_time_constant_breaks
-            main_schedule[day_of_the_week].append([end_time_constant_breaks, a])
-        elif start_time >= start_time_constant_breaks and end_time <= end_time_constant_breaks:
-            main_schedule[day_of_the_week][0][0] = []
-        elif start_time >= start_time_constant_breaks and end_time >= end_time_constant_breaks:
-            main_schedule[day_of_the_week][0][0] = max(end_time_constant_breaks, start_time)
-        elif start_time <= start_time_constant_breaks and end_time <= end_time_constant_breaks:
-            main_schedule[day_of_the_week][0][1] = min(end_time, start_time_constant_breaks)
+            if start_time <= start_time_constant_breaks and end_time >= end_time_constant_breaks:
+                a = end_time
+                main_schedule[day_of_the_week][0][1] = start_time_constant_breaks
+                main_schedule[day_of_the_week].append([end_time_constant_breaks, a])
+            elif start_time >= start_time_constant_breaks and end_time <= end_time_constant_breaks:
+                pass
+            elif start_time >= start_time_constant_breaks and end_time >= end_time_constant_breaks:
+                main_schedule[day_of_the_week][0][0] = max(end_time_constant_breaks, start_time)
+            elif start_time <= start_time_constant_breaks and end_time <= end_time_constant_breaks:
+                main_schedule[day_of_the_week][0][1] = min(end_time, start_time_constant_breaks)
 
     # Достанем изменения в расписании {datetime.date(2024, 9, 3): [['12:00:00', '14:00:00', 1],
     #                                  ['16:00:00', '22:00:00', 0]...]}
@@ -145,26 +148,30 @@ def treatment_schedule(treatment_name):
     if not schedule:
         return None
 
+    # builder = InlineKeyboardBuilder()
     for day, schedule in schedule.items():
-        for time in schedule:
-            start_time = time[0]
-            end_time = time[1]
+        if not schedule:
+            res[day] = None
+        else:
+            for time in schedule:
+                start_time = time[0]
+                end_time = time[1]
 
-            start_time = datetime.timedelta(hours=start_time.hour, minutes=start_time.minutes)
-            end_time = datetime.timedelta(hours=end_time.hour, minutes=end_time.minutes)
+                start_time = datetime.timedelta(hours=start_time.hour, minutes=start_time.minute)
+                end_time = datetime.timedelta(hours=end_time.hour, minutes=end_time.minute)
 
-            while start_time < end_time:
-                button = str(start_time)[:-3]
-                builder = InlineKeyboardBuilder()
+                res[day] = []
+                while start_time < end_time:
+                    res[day].append(str(start_time)[:-3])
+                    # button = str(start_time)[:-3]
 
-                builder.add(types.InlineKeyboardButton(
-                    text=button,
-                    callback_data=button))
-                builder.adjust(4)  # Кол-во столбцов
+                    # builder.add(types.InlineKeyboardButton(
+                    #     text=button,
+                    #     callback_data=button))
+                    # builder.adjust(4)  # Кол-во столбцов
 
-                start_time += duration
+                    start_time += duration
+                if not res[day]:
+                    res[day] = None
 
-    return builder.as_markup(resize_keyboard=False)
-
-
-
+    return res
