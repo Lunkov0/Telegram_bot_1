@@ -42,6 +42,10 @@ def time_to_str(time):
     return time.strftime('%H:%M')
 
 
+def srt_to_time(time):
+    return datetime.datetime.strptime(time, '%H:%M')
+
+
 def merge_time(main: list[list[datetime]],
                second: list[datetime],
                is_it_working_day: int = 0) -> list[list[datetime]]:
@@ -148,7 +152,6 @@ def treatment_schedule(treatment_name):
     if not schedule:
         return None
 
-    # builder = InlineKeyboardBuilder()
     for day, schedule in schedule.items():
         if not schedule:
             res[day] = None
@@ -163,12 +166,6 @@ def treatment_schedule(treatment_name):
                 res[day] = []
                 while start_time < end_time:
                     res[day].append(str(start_time)[:-3])
-                    # button = str(start_time)[:-3]
-
-                    # builder.add(types.InlineKeyboardButton(
-                    #     text=button,
-                    #     callback_data=button))
-                    # builder.adjust(4)  # Кол-во столбцов
 
                     start_time += duration
                 if not res[day]:

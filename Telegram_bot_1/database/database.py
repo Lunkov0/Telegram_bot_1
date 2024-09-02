@@ -54,7 +54,7 @@ class DataBase:
             CREATE TABLE IF NOT EXISTS appointments(
                 id SERIAL PRIMARY KEY,
                 full_name VARCHAR(50),
-                appointment_time TIME,
+                appointment_time TIMESTAMP,
                 contact_phone VARCHAR(25),
                 users_tg_id VARCHAR(25),
                 services_id INTEGER
@@ -265,10 +265,10 @@ class DataBase:
         return cursor.fetchall()
 
 
-    @staticmethod
-    @connecting_to_the_database
-    def drop(cursor):
-        cursor.execute(f"""DROP TABLE constant_breaks;""")
+    # @staticmethod
+    # @connecting_to_the_database
+    # def drop(cursor):
+    #     cursor.execute(f"""DROP TABLE appointments;""")
 
 
 dataBase = DataBase()

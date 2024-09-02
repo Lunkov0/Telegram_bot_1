@@ -54,12 +54,22 @@ async def schedule_make_appointment_fsm(callback: types.CallbackQuery, state: FS
     await state.update_data(day=day)
 
     keyboard = list_to_keyboard(schedule[day])
-
+    await state.set_state(MakeAppointmentFSM.time)
     await callback.message.answer(text=txt, reply_markup=keyboard)
+
+
+@router.callback_query(MakeAppointmentFSM.time)
+async def time_make_appointment_fsm(callback: types.CallbackQuery, state: FSMContext):
+    time = callback.data
+    # await state.update_data(time=time)
+    await callback.message.answer(text=time)
+
+    schedule = await state.get_data()
+    schedule = schedule.get('schedule')
 
 
 @router.message(F.text == '333')
 @router.callback_query(F.data.startswith('make_an_appointment_'))
 async def some(message: types.Message):
-    keyboard = list_to_keyboard(['1', '2', '3', '4', '5', '6', '3', '3', '41', '2', '5'], 3)
-    await message.answer(text='Some активирован!!!', reply_markup=keyboard)
+    txt = str(message.from_user.id)
+    await message.answer(text=txt)
