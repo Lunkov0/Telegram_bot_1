@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 import locale
 
 from database.database import dataBase
-from functions import list_to_keyboard, treatment_schedule, str_to_date, date_to_str
+from functions import list_to_keyboard, treatment_schedule, str_to_date, date_to_str, str_to_time
 from utils.states import MakeAppointmentFSM
 
 # Установка русской локализации для модуля datetime
@@ -60,12 +60,60 @@ async def schedule_make_appointment_fsm(callback: types.CallbackQuery, state: FS
 
 @router.callback_query(MakeAppointmentFSM.time)
 async def time_make_appointment_fsm(callback: types.CallbackQuery, state: FSMContext):
-    time = callback.data
-    # await state.update_data(time=time)
-    await callback.message.answer(text=time)
+    time = str_to_time(callback.data)
+    await state.update_data(time=time)
 
-    schedule = await state.get_data()
-    schedule = schedule.get('schedule')
+    # data = await state.get_data()
+    txt = f'В выбрали время: {time.time()}\nВведите номер для связи'
+
+    #
+    await callback.message.answer(
+        text='Отправьте свой номер телефона',
+        reply_markup=types.ReplyKeyboardMarkup(
+            resize_keyboard=True,
+            one_time_keyboard=True,
+            keyboard=[
+                [
+                    types.KeyboardButton(
+                        text='Отправить номер телефона',
+                        request_contact=True
+                    )
+                ]
+            ],
+        ),
+    )
+
+    await state.set_state(MakeAppointmentFSM.contact_phone)
+
+
+@router.message(F.contact)
+async def phone_number_make_appointment_fsm(message: types.Message):
+    txt = message.text
+    await message.answer(text=txt)
+
+
+# @router.callback_query(content_types=types.ContentType.CONTACT)
+# async def contact_phone_make_appointment_fsm(callback: types.CallbackQuery, message: types.Message):
+#     async with aiosession.get(
+#             f" https://api.telegram.org/bot{API_TOKEN}/getChat?chat_id={message.from_user.id} ") as resp:
+#         result = await resp.json()
+
+
+''' full_name =
+    appointment_time = time
+    contact_phone =
+    users_tg_id =
+    services_id =
+
+dataBase.add_appointment(full_name, appointment_time, contact_phone, users_tg_id, services_id)
+
+
+id SERIAL PRIMARY KEY,
+                full_name VARCHAR(50),
+                appointment_time TIMESTAMP,
+                contact_phone VARCHAR(25),
+                users_tg_id VARCHAR(25),
+                services_id INTEGER'''
 
 
 @router.message(F.text == '333')

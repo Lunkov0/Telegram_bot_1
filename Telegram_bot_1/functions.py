@@ -42,7 +42,7 @@ def time_to_str(time):
     return time.strftime('%H:%M')
 
 
-def srt_to_time(time):
+def str_to_time(time):
     return datetime.datetime.strptime(time, '%H:%M')
 
 
