@@ -2,6 +2,9 @@ from aiogram import Router, F
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 import locale
+from aiogram import Bot
+
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from database.database import dataBase
 from functions import list_to_keyboard, treatment_schedule, str_to_date, date_to_str, str_to_time
@@ -64,39 +67,9 @@ async def time_make_appointment_fsm(callback: types.CallbackQuery, state: FSMCon
     await state.update_data(time=time)
 
     # data = await state.get_data()
-    txt = f'В выбрали время: {time.time()}\nВведите номер для связи'
+    txt = f'В выбрали время: {time.time()}\nВведите номер для связи. \n\nФормат ввода: 89999999999'
+    await callback.message.answer(text=txt)
 
-    #
-    await callback.message.answer(
-        text='Отправьте свой номер телефона',
-        reply_markup=types.ReplyKeyboardMarkup(
-            resize_keyboard=True,
-            one_time_keyboard=True,
-            keyboard=[
-                [
-                    types.KeyboardButton(
-                        text='Отправить номер телефона',
-                        request_contact=True
-                    )
-                ]
-            ],
-        ),
-    )
-
-    await state.set_state(MakeAppointmentFSM.contact_phone)
-
-
-@router.message(F.contact)
-async def phone_number_make_appointment_fsm(message: types.Message):
-    txt = message.text
-    await message.answer(text=txt)
-
-
-# @router.callback_query(content_types=types.ContentType.CONTACT)
-# async def contact_phone_make_appointment_fsm(callback: types.CallbackQuery, message: types.Message):
-#     async with aiosession.get(
-#             f" https://api.telegram.org/bot{API_TOKEN}/getChat?chat_id={message.from_user.id} ") as resp:
-#         result = await resp.json()
 
 
 ''' full_name =
@@ -114,10 +87,3 @@ id SERIAL PRIMARY KEY,
                 contact_phone VARCHAR(25),
                 users_tg_id VARCHAR(25),
                 services_id INTEGER'''
-
-
-@router.message(F.text == '333')
-@router.callback_query(F.data.startswith('make_an_appointment_'))
-async def some(message: types.Message):
-    txt = str(message.from_user.id)
-    await message.answer(text=txt)

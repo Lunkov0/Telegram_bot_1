@@ -30,6 +30,14 @@ def validate_time(time_str):
         return False
 
 
+def validate_phone_number(number):
+    digits = ''.join(digit for digit in number if digit.isdigit())
+
+    if len(digits) != 11:
+        return False
+    return digits
+
+
 def str_to_date(str_date):
     return datetime.datetime.strptime(str_date, '%Y-%m-%d').date()
 
