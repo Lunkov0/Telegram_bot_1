@@ -25,4 +25,4 @@ class MakeAppointmentFSM(StatesGroup):
     treatment = State()
     schedule = State()
     time = State()
-    contact_phone = State()
+    phone = State()

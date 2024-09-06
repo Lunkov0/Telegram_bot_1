@@ -7,7 +7,7 @@ from aiogram import Bot
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from database.database import dataBase
-from functions import list_to_keyboard, treatment_schedule, str_to_date, date_to_str, str_to_time
+from functions import list_to_keyboard, treatment_schedule, str_to_date, date_to_str, str_to_time, validate_phone_number
 from utils.states import MakeAppointmentFSM
 
 # Установка русской локализации для модуля datetime
@@ -68,7 +68,14 @@ async def time_make_appointment_fsm(callback: types.CallbackQuery, state: FSMCon
 
     # data = await state.get_data()
     txt = f'В выбрали время: {time.time()}\nВведите номер для связи. \n\nФормат ввода: 89999999999'
+    await state.set_state(MakeAppointmentFSM.phone)
     await callback.message.answer(text=txt)
+
+
+@router.message(MakeAppointmentFSM.time)
+async def time_make_appointment_fsm(message: types.Message, state: FSMContext):
+    number = validate_phone_number(message.text)
+    if not number:
 
 
 

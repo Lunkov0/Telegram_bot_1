@@ -13,7 +13,8 @@ def list_to_keyboard(items: list[str], columns=2) -> InlineKeyboardMarkup:
     [
         builder.add(types.InlineKeyboardButton(
             text=item,
-            callback_data=item))
+            callback_data=item,
+            ))
         for item in items
     ]
     builder.adjust(columns)  # Кол-во столбцов
@@ -35,7 +36,7 @@ def validate_phone_number(number):
 
     if len(digits) != 11:
         return False
-    return digits
+    return '8' + digits[1:]
 
 
 def str_to_date(str_date):
