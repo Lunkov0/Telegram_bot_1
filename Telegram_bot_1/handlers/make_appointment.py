@@ -72,10 +72,10 @@ async def time_make_appointment_fsm(callback: types.CallbackQuery, state: FSMCon
     await callback.message.answer(text=txt)
 
 
-@router.message(MakeAppointmentFSM.time)
-async def time_make_appointment_fsm(message: types.Message, state: FSMContext):
-    number = validate_phone_number(message.text)
-    if not number:
+# @router.message(MakeAppointmentFSM.time)
+# async def time_make_appointment_fsm(message: types.Message, state: FSMContext):
+#     number = validate_phone_number(message.text)
+#     if not number:
 
 
 
