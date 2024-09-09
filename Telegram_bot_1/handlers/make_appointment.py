@@ -72,11 +72,28 @@ async def time_make_appointment_fsm(callback: types.CallbackQuery, state: FSMCon
     await callback.message.answer(text=txt)
 
 
-# @router.message(MakeAppointmentFSM.time)
-# async def time_make_appointment_fsm(message: types.Message, state: FSMContext):
-#     number = validate_phone_number(message.text)
-#     if not number:
+@router.message(MakeAppointmentFSM.phone)
+async def phone_make_appointment_fsm(message: types.Message, state: FSMContext):
+    number = validate_phone_number(message.text)
+    if not number:
+        await state.set_state(MakeAppointmentFSM.time)
+        txt = 'Не верный формат ввода номера телефона. Пожалуйста, введите еще раз.'
+        await message.answer(text=txt)
+    else:
+        phone = message.text
+        txt = f'Введен номер телефона: {phone}'
+        await message.answer(text=txt)
+        await state.update_data(phone=phone)
+        await state.set_state(MakeAppointmentFSM.check)
 
+@router.message(MakeAppointmentFSM.check)
+async def check_make_appointment_fsm(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    full_name = message.text
+    appointment_time = data['time']
+    contact_phone = data['phone']
+    users_tg_id = message.from_user.id
+    bot.send_message(user_id, 'сообщение')
 
 
 ''' full_name =
