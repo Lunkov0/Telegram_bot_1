@@ -56,7 +56,7 @@ class DataBase:
                 full_name VARCHAR(50),
                 appointment_time TIMESTAMP,
                 contact_phone VARCHAR(25),
-                users_tg_id VARCHAR(25),
+                users_tg_id INTEGER,
                 services_id INTEGER
                 );
         ''')
@@ -140,14 +140,6 @@ class DataBase:
         ''', (name,))
         return cursor.fetchone()
 
-    @staticmethod
-    @connecting_to_the_database
-    def add_treatment(cursor, *args):
-        cursor.execute(f"""
-                    INSERT INTO treatments
-                    (name, duration, price, description)
-                    VALUES(%s, %s, %s, %s)""", args
-                       )
 
     @staticmethod
     @connecting_to_the_database
@@ -157,12 +149,47 @@ class DataBase:
                     WHERE name=%s""", args
                        )
 
+
+    @staticmethod
+    @connecting_to_the_database
+    def get_treatment_id(cursor, *args):
+        cursor.execute(f"""
+                    SELECT id 
+                    FROM treatments
+                    WHERE name = %s;
+                    """, args)
+        return cursor.fetchone()
+
+
+    @staticmethod
+    @connecting_to_the_database
+    def create_table_appointments(cursor):
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS appointments(
+                id SERIAL PRIMARY KEY,
+                full_name VARCHAR(50),
+                appointment_time TIMESTAMP,
+                contact_phone VARCHAR(25),
+                users_tg_id INTEGER,
+                services_id INTEGER
+                );
+        ''')
+
     @staticmethod
     @connecting_to_the_database
     def add_appointment(cursor, *args):
         cursor.execute(f"""INSERT INTO appointments
                     (full_name, appointment_time, contact_phone, users_tg_id, services_id)
-                    VALUES(%s, %s, %s, %s, %s);""", args)
+                    VALUES(%s, %s, %s, %s, %s)""", *args)
+
+
+    @staticmethod
+    @connecting_to_the_database
+    def get_all_appointments(cursor):
+        cursor.execute(f'''SELECT *
+                        FROM appointments''')
+        return cursor.fetchall()
+
 
     @staticmethod
     @connecting_to_the_database
@@ -272,4 +299,5 @@ class DataBase:
 
 
 dataBase = DataBase()
-print(dataBase.get_treatment_duration('wr'))
+# dataBase.drop()
+print(dataBase.get_all_appointments())

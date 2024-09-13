@@ -8,6 +8,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from database.database import dataBase
 from functions import list_to_keyboard, treatment_schedule, str_to_date, date_to_str, str_to_time, validate_phone_number
+from keyboards.kStart import kb_start
 from utils.states import MakeAppointmentFSM
 
 # Установка русской локализации для модуля datetime
@@ -81,19 +82,47 @@ async def phone_make_appointment_fsm(message: types.Message, state: FSMContext):
         await message.answer(text=txt)
     else:
         phone = message.text
-        txt = f'Введен номер телефона: {phone}'
+        txt = f'Введен номер телефона: {phone}\n\nВведите ФИО'
         await message.answer(text=txt)
         await state.update_data(phone=phone)
-        await state.set_state(MakeAppointmentFSM.check)
+        await state.set_state(MakeAppointmentFSM.name)
 
-@router.message(MakeAppointmentFSM.check)
-async def check_make_appointment_fsm(message: types.Message, state: FSMContext):
+
+@router.message(MakeAppointmentFSM.name)
+async def name_make_appointment_fsm(message: types.Message, state: FSMContext):
     data = await state.get_data()
     full_name = message.text
-    appointment_time = data['time']
-    contact_phone = data['phone']
-    users_tg_id = message.from_user.id
-    bot.send_message(user_id, 'сообщение')
+    user_id = message.from_user.id
+    await state.update_data(name=full_name)
+    await state.update_data(user_id=user_id)
+    time = data['time']
+    phone = data['phone']
+    treatment = data['treatment']
+
+    txt = (f'Вы ввели данные:\n\nФИО: {full_name}\nТелефон: {phone}\nПроцедура: {treatment}\n'
+           f'Время записи: {time.time()}\n\nДля потверждения данных нажмите Записаться')
+
+    keyboard = list_to_keyboard(['Записаться', 'Отмена'])
+    await message.answer(text=txt, reply_markup=keyboard)
+    await state.set_state(MakeAppointmentFSM.check)
+
+
+@router.callback_query(MakeAppointmentFSM.check)
+async def check_make_appointment_fsm(callback: types.CallbackQuery, state: FSMContext):
+    if callback.data == 'Отмена':
+        txt = 'Запись на процедуру отменена. Для продолжения, выберете команду /start в Меню бота'
+        await callback.message.answer(text=txt)
+    if callback.data == 'Записаться':
+        data = await state.get_data()
+        name = data['name']
+        user_id = data['user_id']
+        time = data['time']
+        phone = data['phone']
+        treatment = data['treatment']
+        treatment_id = dataBase.get_treatment_id(treatment)[0]
+        dataBase.add_appointment(name, time, phone, user_id, treatment_id)
+        txt = 'Вы успешно записались на прием! Данные о своей записи вы можете посмотреть в разделе "Мои записи.'
+        await callback.message.answer(text=txt, reply_markup=kb_start)
 
 
 ''' full_name =

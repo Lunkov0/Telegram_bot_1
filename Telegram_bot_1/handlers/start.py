@@ -1,6 +1,6 @@
 from aiogram import Router, F
 from aiogram.filters import Command
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 
 from keyboards.kStart import kb_start
 
@@ -9,7 +9,8 @@ router = Router()
 
 
 @router.message(Command('start'))
-async def start(message: Message):
+@router.callback_query(F.data == 'Отмена')
+async def start(message: Message, callback: CallbackQuery=None):
     await message.answer(
         'Привет! Я электронный помощник, я помогу Вам с записью на прием!',
         reply_markup=kb_start

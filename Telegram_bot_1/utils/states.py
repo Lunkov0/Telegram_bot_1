@@ -26,4 +26,5 @@ class MakeAppointmentFSM(StatesGroup):
     schedule = State()
     time = State()
     phone = State()
+    name = State()
     check = State()
