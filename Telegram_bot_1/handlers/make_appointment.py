@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from aiogram import Router, F
 from aiogram import types
 from aiogram.fsm.context import FSMContext
@@ -20,13 +22,35 @@ locale.setlocale(
 router = Router()
 
 
+@router.callback_query(F.data == 'my_appointments')
+async def make_an_appointments(callback: types.CallbackQuery, state: FSMContext):
+    appointments = dataBase.get_my_appointments(callback.from_user.id)[0]
+    treatment = dataBase.get_treatment_name(appointments[5])
+    txt = f'{appointments[1]}, Вы записаны на процедуру"{treatment[0]}". Дата приёма: {appointments[2]}'
+    await callback.message.answer(text=txt)
+
+
 @router.callback_query(F.data == 'make_an_appointment')
 async def make_an_appointment(callback: types.CallbackQuery, state: FSMContext):
-    treatments = dataBase.treatments_get_names()
-    keyboard = list_to_keyboard([val[1] for val in treatments])
-    await state.set_state(MakeAppointmentFSM.treatment)
+    appointment = dataBase.get_my_appointments(callback.from_user.id)[0]
+    if appointment:
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(text='Удалить', callback_data='delete_my_appointment'))
+        keyboard = builder.as_markup(resize_keyboard=False)
 
-    await callback.message.answer(text='Выберите процедуру', reply_markup=keyboard)
+        appointment_name = dataBase.get_treatment_name(appointment[5])[0]
+        date = appointment[2]
+        txt = (f'В данный момент можно записаться только на одну процедуру.\n\n'
+               f'Вы записаны на процедуру "{appointment_name}" Дата: {date_to_str(date)}.'
+               f'Вы можете изменить данные по вашей записи не позднее чем два дня до приема,'
+               f' для этого удалите предыдущую запись.')
+        await state.set_state(MakeAppointmentFSM.delete)
+    else:
+        treatments = dataBase.treatments_get_names()
+        keyboard = list_to_keyboard([val[1] for val in treatments])
+        await state.set_state(MakeAppointmentFSM.treatment)
+        txt = 'Выберите процедуру.'
+    await callback.message.answer(text=txt, reply_markup=keyboard)
 
 
 @router.callback_query(MakeAppointmentFSM.treatment)
@@ -117,26 +141,30 @@ async def check_make_appointment_fsm(callback: types.CallbackQuery, state: FSMCo
         name = data['name']
         user_id = data['user_id']
         time = data['time']
+        day = data['day']
+        time = datetime.combine(day, time.time())
         phone = data['phone']
         treatment = data['treatment']
         treatment_id = dataBase.get_treatment_id(treatment)[0]
-        dataBase.add_appointment(name, time, phone, user_id, treatment_id)
+        dataBase.add_appointment((name, time, phone, user_id, treatment_id))
         txt = 'Вы успешно записались на прием! Данные о своей записи вы можете посмотреть в разделе "Мои записи.'
         await callback.message.answer(text=txt, reply_markup=kb_start)
 
 
-''' full_name =
-    appointment_time = time
-    contact_phone =
-    users_tg_id =
-    services_id =
+@router.callback_query(MakeAppointmentFSM.delete)
+async def delete_appointment_fsm(callback: types.CallbackQuery, state: FSMContext):
+    keyboard = list_to_keyboard(['Подтвердить', 'Отмена'])
+    txt = 'Вы уверены что хотите удалить текущую запись?'
+    await state.set_state(MakeAppointmentFSM.confirm)
+    await callback.message.answer(text=txt, reply_markup=keyboard)
 
-dataBase.add_appointment(full_name, appointment_time, contact_phone, users_tg_id, services_id)
 
-
-id SERIAL PRIMARY KEY,
-                full_name VARCHAR(50),
-                appointment_time TIMESTAMP,
-                contact_phone VARCHAR(25),
-                users_tg_id VARCHAR(25),
-                services_id INTEGER'''
+@router.callback_query(MakeAppointmentFSM.confirm)
+async def cancel(callback: types.CallbackQuery):
+    if callback.data == 'Отмена':
+        await callback.message.answer(text='Отмена. Возвращение на стартовое диалоговое окно.', reply_markup=kb_start)
+    if callback.data == 'Подтвердить':
+        dataBase.del_appointment(callback.message.from_user.id)
+        await callback.message.answer(text='Запись удалена. Возвращение на стартовое диалоговое окно.',
+                                      reply_markup=kb_start)
+        appointment = dataBase.get_my_appointments(callback.from_user.id)[0]

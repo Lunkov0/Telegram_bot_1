@@ -135,7 +135,6 @@ def appointment_time():
 
     date_now = datetime.date.today()
     schedule = {}
-    # return date_now, changed_schedule
 
     for i in range(30):
         if not changed_schedule.get(date_now, False):

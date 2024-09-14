@@ -128,17 +128,6 @@ class DataBase:
         cursor.execute('SELECT id, name FROM treatments')
         res = cursor.fetchall()
         return res
-        # return [val[0] for val in res]
-
-    @staticmethod
-    @connecting_to_the_database
-    def get_treatment_duration(cursor, name):
-        cursor.execute(f'''
-            SELECT duration
-            FROM treatments
-            WHERE name = %s
-        ''', (name,))
-        return cursor.fetchone()
 
 
     @staticmethod
@@ -163,17 +152,25 @@ class DataBase:
 
     @staticmethod
     @connecting_to_the_database
-    def create_table_appointments(cursor):
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS appointments(
-                id SERIAL PRIMARY KEY,
-                full_name VARCHAR(50),
-                appointment_time TIMESTAMP,
-                contact_phone VARCHAR(25),
-                users_tg_id INTEGER,
-                services_id INTEGER
-                );
-        ''')
+    def get_treatment_duration(cursor, name):
+        cursor.execute(f'''
+            SELECT duration
+            FROM treatments
+            WHERE name = %s
+        ''', (name,))
+        return cursor.fetchone()
+
+
+    @staticmethod
+    @connecting_to_the_database
+    def get_treatment_name(cursor, id):
+        cursor.execute(f'''
+            SELECT name
+            FROM treatments
+            WHERE id = %s
+        ''', (id,))
+        return cursor.fetchone()
+
 
     @staticmethod
     @connecting_to_the_database
@@ -182,6 +179,15 @@ class DataBase:
                     (full_name, appointment_time, contact_phone, users_tg_id, services_id)
                     VALUES(%s, %s, %s, %s, %s)""", *args)
 
+    @staticmethod
+    @connecting_to_the_database
+    def get_my_appointments(cursor, *args):
+        cursor.execute(f'''SELECT *
+                           FROM appointments
+                           WHERE users_tg_id = %s
+                           AND appointment_time > now()''', args)
+        return cursor.fetchall()
+
 
     @staticmethod
     @connecting_to_the_database
@@ -189,6 +195,15 @@ class DataBase:
         cursor.execute(f'''SELECT *
                         FROM appointments''')
         return cursor.fetchall()
+
+
+    @staticmethod
+    @connecting_to_the_database
+    def del_appointment(cursor, *args):
+        cursor.execute(f"""
+                    DELETE * FROM appointments
+                    WHERE users_tg_id=%s""", args
+                       )
 
 
     @staticmethod
@@ -207,12 +222,16 @@ class DataBase:
     @staticmethod
     @connecting_to_the_database
     def schedule_set_s(cursor, *args):
-        cursor.execute('UPDATE schedule SET start_time = %s WHERE day_of_the_week = %s', args)
+        cursor.execute('UPDATE schedule '
+                       'SET start_time = %s '
+                       'WHERE day_of_the_week = %s', args)
 
     @staticmethod
     @connecting_to_the_database
     def schedule_set_f(cursor, *args):
-        cursor.execute('UPDATE schedule SET end_time = %s WHERE day_of_the_week = %s', args)
+        cursor.execute('UPDATE schedule '
+                       'SET end_time = %s '
+                       'WHERE day_of_the_week = %s', args)
 
 
 # '''************************************ schedule of changes *************************************'''
@@ -244,9 +263,7 @@ class DataBase:
                         (start_date, end_date, is_it_a_working_day)
                         VALUES(%s, %s, %s)""", args
                            )
-            print("Data inserted successfully.")
-        else:
-            print("Data already exists in the database.")
+
 
     @staticmethod
     @connecting_to_the_database
