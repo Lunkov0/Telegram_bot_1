@@ -4,7 +4,6 @@ from aiogram import Router, F
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 import locale
-from aiogram import Bot
 
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
