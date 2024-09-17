@@ -201,10 +201,16 @@ class DataBase:
     @connecting_to_the_database
     def del_appointment(cursor, *args):
         cursor.execute(f"""
-                    DELETE * FROM appointments
-                    WHERE users_tg_id=%s""", args
-                       )
+                    DELETE FROM appointments
+                    WHERE users_tg_id = %s""", args)
 
+    @staticmethod
+    @connecting_to_the_database
+    def del_treatment(cursor, *args):
+        cursor.execute(f"""
+                    DELETE FROM treatments
+                    WHERE name=%s""", args
+                       )
 
     @staticmethod
     @connecting_to_the_database

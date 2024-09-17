@@ -159,11 +159,11 @@ async def delete_appointment_fsm(callback: types.CallbackQuery, state: FSMContex
 
 
 @router.callback_query(MakeAppointmentFSM.confirm)
-async def cancel(callback: types.CallbackQuery):
+async def confirm(callback: types.CallbackQuery):
     if callback.data == 'Отмена':
         await callback.message.answer(text='Отмена. Возвращение на стартовое диалоговое окно.', reply_markup=kb_start)
     if callback.data == 'Подтвердить':
-        dataBase.del_appointment(callback.message.from_user.id)
+        user_id = str(callback.from_user.id)
+        dataBase.del_appointment(user_id)
         await callback.message.answer(text='Запись удалена. Возвращение на стартовое диалоговое окно.',
                                       reply_markup=kb_start)
-        appointment = dataBase.get_my_appointments(callback.from_user.id)[0]
