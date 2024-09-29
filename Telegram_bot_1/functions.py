@@ -136,6 +136,11 @@ def appointment_time():
     date_now = datetime.date.today()
     schedule = {}
 
+    # Достанем то, что уже зарезервировано клиентами
+    appointments = dataBase.get_all_appointments()
+    for id, name, appointment_datetime, phone, tg_id, service_id in appointments:
+        ...
+
     for i in range(30):
         if not changed_schedule.get(date_now, False):
             schedule[date_now] = main_schedule[date_now.weekday()]

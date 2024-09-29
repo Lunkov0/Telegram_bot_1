@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date, timedelta
 
 from aiogram import Router, F
 from aiogram import types
@@ -31,8 +31,9 @@ async def make_an_appointments(callback: types.CallbackQuery, state: FSMContext)
 
 @router.callback_query(F.data == 'make_an_appointment')
 async def make_an_appointment(callback: types.CallbackQuery, state: FSMContext):
-    appointment = dataBase.get_my_appointments(callback.from_user.id)[0]
+    appointment = dataBase.get_my_appointments(callback.from_user.id)
     if appointment:
+        appointment = appointment[0]
         builder = InlineKeyboardBuilder()
         builder.add(types.InlineKeyboardButton(text='Удалить', callback_data='delete_my_appointment'))
         keyboard = builder.as_markup(resize_keyboard=False)
@@ -159,11 +160,25 @@ async def delete_appointment_fsm(callback: types.CallbackQuery, state: FSMContex
 
 
 @router.callback_query(MakeAppointmentFSM.confirm)
-async def confirm(callback: types.CallbackQuery):
+async def confirm_appointment_fsm(callback: types.CallbackQuery):
     if callback.data == 'Отмена':
         await callback.message.answer(text='Отмена. Возвращение на стартовое диалоговое окно.', reply_markup=kb_start)
     if callback.data == 'Подтвердить':
-        user_id = str(callback.from_user.id)
-        dataBase.del_appointment(user_id)
-        await callback.message.answer(text='Запись удалена. Возвращение на стартовое диалоговое окно.',
-                                      reply_markup=kb_start)
+        user_id = callback.from_user.id
+
+        my_appointment = dataBase.get_my_appointments()
+        if my_appointment:
+            my_appointment = my_appointment[0]
+            appointment_time = my_appointment[2].date()
+            now = date.today()
+            delt = timedelta(days=2)
+            min_date_for_canceling = now + delt
+            if appointment_time > min_date_for_canceling:
+                dataBase.del_appointment(user_id)
+                await callback.message.answer(text='Запись удалена. Возвращение на стартовое диалоговое окно.',
+                                              reply_markup=kb_start)
+            else:
+                txt = 'Запись на прием можно отменить за два и более дня. Для отмены. обратитесь к администратору'
+                await callback.message.answer(text=txt, reply_markup=kb_start)
+
+
