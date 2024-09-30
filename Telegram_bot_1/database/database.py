@@ -174,6 +174,17 @@ class DataBase:
 
     @staticmethod
     @connecting_to_the_database
+    def get_treatment_duration_by_id(cursor, id):
+        cursor.execute(f'''
+            SELECT duration
+            FROM treatments
+            WHERE id = %s
+        ''', (id,))
+        return cursor.fetchone()
+
+
+    @staticmethod
+    @connecting_to_the_database
     def add_appointment(cursor, *args):
         cursor.execute(f"""INSERT INTO appointments
                     (full_name, appointment_time, contact_phone, users_tg_id, services_id)
@@ -193,7 +204,8 @@ class DataBase:
     @connecting_to_the_database
     def get_all_appointments(cursor):
         cursor.execute(f'''SELECT *
-                        FROM appointments''')
+                        FROM appointments
+                        WHERE appointment_time > now()''')
         return cursor.fetchall()
 
 

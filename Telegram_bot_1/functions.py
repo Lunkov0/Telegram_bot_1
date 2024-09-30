@@ -14,7 +14,7 @@ def list_to_keyboard(items: list[str], columns=2) -> InlineKeyboardMarkup:
         builder.add(types.InlineKeyboardButton(
             text=item,
             callback_data=item,
-            ))
+        ))
         for item in items
     ]
     builder.adjust(columns)  # Кол-во столбцов
@@ -111,7 +111,7 @@ def appointment_time():
         else:
             main_schedule[day_of_the_week] = [[start_time, end_time]]
 
-        # Добавим постоянные перерывы
+            # Добавим постоянные перерывы
             if start_time <= start_time_constant_breaks and end_time >= end_time_constant_breaks:
                 a = end_time
                 main_schedule[day_of_the_week][0][1] = start_time_constant_breaks
@@ -137,9 +137,15 @@ def appointment_time():
     schedule = {}
 
     # Достанем то, что уже зарезервировано клиентами
-    appointments = dataBase.get_all_appointments()
-    for id, name, appointment_datetime, phone, tg_id, service_id in appointments:
-        ...
+    appointments_data = dataBase.get_all_appointments()
+    appointments = {}
+    for id, name, appointment_datetime, phone, tg_id, service_id in appointments_data:
+        duration = dataBase.get_treatment_duration_by_id(id)
+        end_time = appointment_datetime.time() + datetime.timedelta(hours=duration.hour, minutes=duration.minute)
+        if not appointments.get(appointment_datetime, False):
+            appointments[appointment_datetime] = [appointment_datetime.time, end_time]
+        else:
+            appointments[appointment_datetime].append([appointment_datetime.time, end_time])
 
     for i in range(30):
         if not changed_schedule.get(date_now, False):
@@ -151,12 +157,18 @@ def appointment_time():
 
             for start, end, is_it_working_day in changes:
                 schedule[date_now] = merge_time(main, [start, end], is_it_working_day)
+
+                if appointments.get(date_now, False):
+                    for duration in appointments[date_now]:
+                        schedule[date_now] = merge_time(schedule[date_now], duration, 1)
+
         date_now += datetime.timedelta(days=1)
 
     return schedule
 
 
 def treatment_schedule(treatment_name):
+    """Returns the ready-made schedule divided into buttons"""
     schedule = appointment_time()
     duration = dataBase.get_treatment_duration(treatment_name)[0]
     duration = datetime.timedelta(hours=duration.hour, minutes=duration.minute)

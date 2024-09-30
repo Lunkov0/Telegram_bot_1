@@ -23,10 +23,14 @@ router = Router()
 
 @router.callback_query(F.data == 'my_appointments')
 async def make_an_appointments(callback: types.CallbackQuery, state: FSMContext):
-    appointments = dataBase.get_my_appointments(callback.from_user.id)[0]
-    treatment = dataBase.get_treatment_name(appointments[5])
-    txt = f'{appointments[1]}, Вы записаны на процедуру"{treatment[0]}". Дата приёма: {appointments[2]}'
-    await callback.message.answer(text=txt)
+    try:
+        appointments = dataBase.get_my_appointments(callback.from_user.id)[0]
+        treatment = dataBase.get_treatment_name(appointments[5])
+        txt = f'{appointments[1]}, Вы записаны на процедуру"{treatment[0]}". Дата приёма: {appointments[2]}'
+    except IndexError:
+        txt = 'Сейчас у Вас нет записей. Можете записаться с помощью этого бота!'
+
+    await callback.message.answer(text=txt, reply_markup=kb_start)
 
 
 @router.callback_query(F.data == 'make_an_appointment')
@@ -101,9 +105,9 @@ async def time_make_appointment_fsm(callback: types.CallbackQuery, state: FSMCon
 async def phone_make_appointment_fsm(message: types.Message, state: FSMContext):
     number = validate_phone_number(message.text)
     if not number:
-        await state.set_state(MakeAppointmentFSM.time)
         txt = 'Не верный формат ввода номера телефона. Пожалуйста, введите еще раз.'
         await message.answer(text=txt)
+        await state.set_state(MakeAppointmentFSM.phone)
     else:
         phone = message.text
         txt = f'Введен номер телефона: {phone}\n\nВведите ФИО'
@@ -166,7 +170,7 @@ async def confirm_appointment_fsm(callback: types.CallbackQuery):
     if callback.data == 'Подтвердить':
         user_id = callback.from_user.id
 
-        my_appointment = dataBase.get_my_appointments()
+        my_appointment = dataBase.get_my_appointments(callback.from_user.id)
         if my_appointment:
             my_appointment = my_appointment[0]
             appointment_time = my_appointment[2].date()
