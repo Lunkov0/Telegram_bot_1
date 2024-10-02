@@ -336,3 +336,6 @@ class DataBase:
 dataBase = DataBase()
 # dataBase.drop()
 print(dataBase.get_all_appointments())
+x = dataBase.get_treatment_duration('wr')[0]
+e = dataBase.get_treatment_duration_by_id(4)[0]
+print(e)

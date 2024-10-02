@@ -140,8 +140,9 @@ def appointment_time():
     appointments_data = dataBase.get_all_appointments()
     appointments = {}
     for id, name, appointment_datetime, phone, tg_id, service_id in appointments_data:
-        duration = dataBase.get_treatment_duration_by_id(id)[0].time
-        end_time = appointment_datetime.time() + datetime.timedelta(hours=duration.hour, minutes=duration.minute)
+        duration = dataBase.get_treatment_duration_by_id(service_id)[0]
+        app = datetime.timedelta(hours=appointment_datetime.hour, minutes=appointment_datetime.minute)
+        end_time = app + datetime.timedelta(hours=duration.hour, minutes=duration.minute)
         if not appointments.get(appointment_datetime, False):
             appointments[appointment_datetime] = [appointment_datetime.time, end_time]
         else:
