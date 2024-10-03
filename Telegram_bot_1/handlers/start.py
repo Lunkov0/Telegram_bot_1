@@ -7,7 +7,6 @@ from keyboards.kStart import kb_start
 
 router = Router()
 
-
 @router.message(Command('start'))
 async def start(message: Message):
     txt = 'Привет! Я электронный помощник, я помогу Вам с записью на прием!'
