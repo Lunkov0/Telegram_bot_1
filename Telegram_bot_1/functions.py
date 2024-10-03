@@ -58,6 +58,7 @@ def str_to_time(time):
 def merge_time(main: list[list[datetime]],
                second: list[datetime],
                is_it_working_day: int = 0) -> list[list[datetime]]:
+    # 0 - убрать время из расписания, 1 - добавить новые рабочие часы
     if not second:
         return main
 
@@ -140,13 +141,22 @@ def appointment_time():
     appointments_data = dataBase.get_all_appointments()
     appointments = {}
     for id, name, appointment_datetime, phone, tg_id, service_id in appointments_data:
+        date = appointment_datetime.date()
+        time = appointment_datetime.time()
+
         duration = dataBase.get_treatment_duration_by_id(service_id)[0]
-        app = datetime.timedelta(hours=appointment_datetime.hour, minutes=appointment_datetime.minute)
-        end_time = app + datetime.timedelta(hours=duration.hour, minutes=duration.minute)
-        if not appointments.get(appointment_datetime, False):
-            appointments[appointment_datetime] = [appointment_datetime.time, end_time]
+
+        mnt_time = time.hour * 60 + time.minute  # Простихоспаде. Сил никаких нет
+        mnt_dur = duration.hour * 60 + duration.minute
+        mnt_end = mnt_time + mnt_dur
+        h = mnt_end // 60
+        m = mnt_end % 60
+        end_time = datetime.time(h, m)
+
+        if not appointments.get(date, False):
+            appointments[date] = [[time, end_time]]
         else:
-            appointments[appointment_datetime].append([appointment_datetime.time, end_time])
+            appointments[date].append([time, end_time])
 
     for i in range(30):
         if not changed_schedule.get(date_now, False):
@@ -159,9 +169,9 @@ def appointment_time():
             for start, end, is_it_working_day in changes:
                 schedule[date_now] = merge_time(main, [start, end], is_it_working_day)
 
-                if appointments.get(date_now, False):
-                    for duration in appointments[date_now]:
-                        schedule[date_now] = merge_time(schedule[date_now], duration, 1)
+        if appointments.get(date_now, False):
+            for duration in appointments[date_now][0]:
+                schedule[date_now] = merge_time(schedule[date_now], duration)
 
         date_now += datetime.timedelta(days=1)
 
