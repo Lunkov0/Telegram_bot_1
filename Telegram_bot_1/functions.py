@@ -170,7 +170,7 @@ def appointment_time():
                 schedule[date_now] = merge_time(main, [start, end], is_it_working_day)
 
         if appointments.get(date_now, False):
-            for duration in appointments[date_now][0]:
+            for duration in appointments[date_now]:
                 schedule[date_now] = merge_time(schedule[date_now], duration)
 
         date_now += datetime.timedelta(days=1)

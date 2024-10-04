@@ -36,25 +36,24 @@ async def make_an_appointments(callback: types.CallbackQuery, state: FSMContext)
 @router.callback_query(F.data == 'make_an_appointment')
 async def make_an_appointment(callback: types.CallbackQuery, state: FSMContext):
     appointment = dataBase.get_my_appointments(callback.from_user.id)
-    # if appointment:
-    #     appointment = appointment[0]
-    #     builder = InlineKeyboardBuilder()
-    #     builder.add(types.InlineKeyboardButton(text='Удалить', callback_data='delete_my_appointment'))
-    #     keyboard = builder.as_markup(resize_keyboard=False)
-    #
-    #     appointment_name = dataBase.get_treatment_name(appointment[5])[0]
-    #     date = appointment[2]
-    #     txt = (f'В данный момент можно записаться только на одну процедуру.\n\n'
-    #            f'Вы записаны на процедуру "{appointment_name}" Дата: {date_to_str(date)}.'
-    #            f'Вы можете изменить данные по вашей записи не позднее чем два дня до приема,'
-    #            f' для этого удалите предыдущую запись.')
-    #     await state.set_state(MakeAppointmentFSM.delete)
-    # else:
+    if appointment:
+        appointment = appointment[0]
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(text='Удалить', callback_data='delete_my_appointment'))
+        keyboard = builder.as_markup(resize_keyboard=False)
 
-    treatments = dataBase.treatments_get_names()
-    keyboard = list_to_keyboard([val[1] for val in treatments])
-    await state.set_state(MakeAppointmentFSM.treatment)
-    txt = 'Выберите процедуру.'
+        appointment_name = dataBase.get_treatment_name(appointment[5])[0]
+        date = appointment[2]
+        txt = (f'В данный момент можно записаться только на одну процедуру.\n\n'
+               f'Вы записаны на процедуру "{appointment_name}" Дата: {date_to_str(date)}.'
+               f'Вы можете изменить данные по вашей записи не позднее чем два дня до приема,'
+               f' для этого удалите предыдущую запись.')
+        await state.set_state(MakeAppointmentFSM.delete)
+    else:
+        treatments = dataBase.treatments_get_names()
+        keyboard = list_to_keyboard([val[1] for val in treatments])
+        await state.set_state(MakeAppointmentFSM.treatment)
+        txt = 'Выберите процедуру.'
 
     await callback.message.answer(text=txt, reply_markup=keyboard)
 
