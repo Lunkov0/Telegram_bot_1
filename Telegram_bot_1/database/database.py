@@ -1,26 +1,16 @@
 import psycopg2
 from database.config import HOST, USER, PASSWORD, DB_NAME, PORT
-import datetime
-# from config import HOST, USER, PASSWORD, DB_NAME, PORT
-
-
-'''Для работы с Postgres создан класс DataBase
-Создаем таблицы:
-    treatments - список предоставляемых услуг
-    appointments - список записей на прием
-    schedule - основное расписание
-    schedule_changes - изменения в расписании
-    
-Декоратор connecting_to_the_database используется для подключения и отключения от БД
-
-Реализованны функции:
-    add_service - добавить услугу
-    add_appointment - добавить запись
-    
-    '''
 
 
 class DataBase:
+    '''Для работы с Postgres создан класс DataBase
+    Создаем таблицы:
+        treatments - список предоставляемых услуг
+        appointments - список записей на прием
+        schedule - основное расписание
+        schedule_changes - изменения в расписании
+    Декоратор connecting_to_the_database используется для подключения и отключения от БД'''
+    @staticmethod
     def connecting_to_the_database(func):
         def wrapper(*args):
             connection = psycopg2.connect(user=USER, password=PASSWORD, host=HOST, port=PORT, database=DB_NAME)
