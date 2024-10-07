@@ -316,7 +316,6 @@ class DataBase:
         cursor.execute(f"""SELECT * FROM constant_breaks;""")
         return cursor.fetchall()
 
-
     # @staticmethod
     # @connecting_to_the_database
     # def drop(cursor):
