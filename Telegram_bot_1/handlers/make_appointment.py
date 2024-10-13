@@ -7,7 +7,7 @@ import locale
 
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from database.database import dataBase
+from db.database import dataBase
 from functions import list_to_keyboard, treatment_schedule, str_to_date, date_to_str, str_to_time, validate_phone_number
 from keyboards.kStart import kb_start
 from utils.states import MakeAppointmentFSM

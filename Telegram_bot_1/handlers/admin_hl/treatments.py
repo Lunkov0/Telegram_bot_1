@@ -7,11 +7,11 @@ import re
 
 import constants
 from keyboards.kAdmin import kb_admin, kb_treatments, kb_add_treatment
-from database.database import dataBase
+from db.database import dataBase
 from constants import WEEKDAY
 from utils.states import ChangeFSM, TreatmentFSM
 from aiogram.utils.callback_answer import CallbackAnswer
-from database.database import dataBase
+from db.database import dataBase
 
 
 def validate_time(time_str):

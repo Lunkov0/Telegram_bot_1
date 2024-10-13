@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 
 import constants
 from keyboards.kAdmin import kb_admin, kb_type_of_schedule
-from database.database import dataBase
+from db.database import dataBase
 from constants import WEEKDAY
 from utils.states import ConstantBreaksFSM
 from handlers.admin_hl.treatments import validate_time

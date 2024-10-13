@@ -11,9 +11,9 @@ from aiogram.fsm import state
 import datetime
 
 import constants
-from database.database import dataBase
+from db.database import dataBase
 from keyboards.kAdmin import kb_admin, kb_admin_schedule, kb_c_s_type
-from database.database import dataBase
+from db.database import dataBase
 from constants import WEEKDAY
 from utils.states import ChangeFSM
 

@@ -6,7 +6,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 import datetime
 
 from keyboards.kAdmin import kb_admin, kb_c_s_type
-from database.database import dataBase
+from db.database import dataBase
 from utils.states import ChangeFSM
 
 

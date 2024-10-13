@@ -1,7 +1,5 @@
 import psycopg2
-import asyncio
-import asyncpg
-from database.config import HOST, USER, PASSWORD, DB_NAME, PORT
+from db.config import HOST, USER, PASSWORD, DB_NAME, PORT
 
 
 class DataBase:
@@ -13,22 +11,23 @@ class DataBase:
         schedule_changes - изменения в расписании
     Декоратор connecting_to_the_database используется для подключения и отключения от БД'''
     @staticmethod
-    async def connecting_to_the_database(func):
+    def connecting_to_the_database(func):
         def wrapper(*args):
-            conn = asyncpg.connect(user=USER, password=PASSWORD, host=HOST, port=PORT, database=DB_NAME)
-            conn.autocommit = True
+            connection = psycopg2.connect(user=USER, password=PASSWORD, host=HOST, port=PORT, database=DB_NAME)
+            connection.autocommit = True
+            cursor = connection.cursor()
 
-            res = func(conn, *args)
+            res = func(cursor, *args)
 
-            conn.close()
+            connection.close()
 
             return res
         return wrapper
 
     @staticmethod
     @connecting_to_the_database
-    def create_table_treatments(conn):
-        conn.execute('''
+    def create_table_treatments(cursor):
+        cursor.execute('''
             CREATE TABLE IF NOT EXISTS treatments(
                 id SERIAL PRIMARY KEY,
                 name VARCHAR(50),
@@ -40,8 +39,8 @@ class DataBase:
 
     @staticmethod
     @connecting_to_the_database
-    def create_table_appointments(conn):
-        conn.execute('''
+    def create_table_appointments(cursor):
+        cursor.execute('''
             CREATE TABLE IF NOT EXISTS appointments(
                 id SERIAL PRIMARY KEY,
                 full_name VARCHAR(50),
@@ -55,8 +54,8 @@ class DataBase:
     # Стандартное расписание
     @staticmethod
     @connecting_to_the_database
-    def create_table_schedule(conn):
-        conn.execute('''
+    def create_table_schedule(cursor):
+        cursor.execute('''
             CREATE TABLE IF NOT EXISTS schedule(
                 id SERIAL PRIMARY KEY,
                 day_of_the_week SMALLINT,
@@ -68,8 +67,8 @@ class DataBase:
     # Изменения в расписании
     @staticmethod
     @connecting_to_the_database
-    def create_table_schedule_changes(conn):
-        conn.execute('''
+    def create_table_schedule_changes(cursor):
+        cursor.execute('''
                 CREATE TABLE IF NOT EXISTS schedule_changes(
                     id SERIAL PRIMARY KEY,
                     start_date TIMESTAMP,
@@ -80,8 +79,8 @@ class DataBase:
 
     @staticmethod
     @connecting_to_the_database
-    def create_table_constant_breaks(conn):
-        conn.execute('''
+    def create_table_constant_breaks(cursor):
+        cursor.execute('''
                 CREATE TABLE IF NOT EXISTS constant_breaks(
                     start_time TIME,
                     end_time TIME
@@ -97,8 +96,8 @@ class DataBase:
 
     @staticmethod
     @connecting_to_the_database
-    def add_treatment(conn, *args):
-        conn.execute(f"""
+    def add_treatment(cursor, *args):
+        cursor.execute(f"""
                     INSERT INTO treatments
                     (name, duration, price, description)
                     VALUES(%s, %s, %s, %s)""", *args
@@ -107,24 +106,24 @@ class DataBase:
 
     @staticmethod
     @connecting_to_the_database
-    def get_all_treatments(conn):
-        conn.execute('SELECT * FROM treatments')
-        res = conn.fetchall()
+    def get_all_treatments(cursor):
+        cursor.execute('SELECT * FROM treatments')
+        res = cursor.fetchall()
         return res
 
 
     @staticmethod
     @connecting_to_the_database
-    def treatments_get_names(conn):
-        conn.execute('SELECT id, name FROM treatments')
-        res = conn.fetchall()
+    def treatments_get_names(cursor):
+        cursor.execute('SELECT id, name FROM treatments')
+        res = cursor.fetchall()
         return res
 
 
     @staticmethod
     @connecting_to_the_database
-    def del_treatment(conn, *args):
-        conn.execute(f"""
+    def del_treatment(cursor, *args):
+        cursor.execute(f"""
                     DELETE FROM treatments
                     WHERE name=%s""", args
                        )
@@ -132,113 +131,113 @@ class DataBase:
 
     @staticmethod
     @connecting_to_the_database
-    def get_treatment_id(conn, *args):
-        conn.execute(f"""
+    def get_treatment_id(cursor, *args):
+        cursor.execute(f"""
                     SELECT id 
                     FROM treatments
                     WHERE name = %s;
                     """, args)
-        return conn.fetchone()
+        return cursor.fetchone()
 
 
     @staticmethod
     @connecting_to_the_database
-    def get_treatment_duration(conn, name):
-        conn.execute(f'''
+    def get_treatment_duration(cursor, name):
+        cursor.execute(f'''
             SELECT duration
             FROM treatments
             WHERE name = %s
         ''', (name,))
-        return conn.fetchone()
+        return cursor.fetchone()
 
 
     @staticmethod
     @connecting_to_the_database
-    def get_treatment_name(conn, id):
-        conn.execute(f'''
+    def get_treatment_name(cursor, id):
+        cursor.execute(f'''
             SELECT name
             FROM treatments
             WHERE id = %s
         ''', (id,))
-        return conn.fetchone()
+        return cursor.fetchone()
 
 
     @staticmethod
     @connecting_to_the_database
-    def get_treatment_duration_by_id(conn, id):
-        conn.execute(f'''
+    def get_treatment_duration_by_id(cursor, id):
+        cursor.execute(f'''
             SELECT duration
             FROM treatments
             WHERE id = %s
         ''', (id,))
-        return conn.fetchone()
+        return cursor.fetchone()
 
 
     @staticmethod
     @connecting_to_the_database
-    def add_appointment(conn, *args):
-        conn.execute(f"""INSERT INTO appointments
+    def add_appointment(cursor, *args):
+        cursor.execute(f"""INSERT INTO appointments
                     (full_name, appointment_time, contact_phone, users_tg_id, services_id)
                     VALUES(%s, %s, %s, %s, %s)""", *args)
 
     @staticmethod
     @connecting_to_the_database
-    def get_my_appointments(conn, *args):
-        conn.execute(f'''SELECT *
+    def get_my_appointments(cursor, *args):
+        cursor.execute(f'''SELECT *
                            FROM appointments
                            WHERE users_tg_id = %s
                            AND appointment_time > now()''', args)
-        return conn.fetchall()
+        return cursor.fetchall()
 
 
     @staticmethod
     @connecting_to_the_database
-    def get_all_appointments(conn):
-        conn.execute(f'''SELECT *
+    def get_all_appointments(cursor):
+        cursor.execute(f'''SELECT *
                         FROM appointments
                         WHERE appointment_time > now()''')
-        return conn.fetchall()
+        return cursor.fetchall()
 
 
     @staticmethod
     @connecting_to_the_database
-    def del_appointment(conn, *args):
-        conn.execute(f"""
+    def del_appointment(cursor, *args):
+        cursor.execute(f"""
                     DELETE FROM appointments
                     WHERE users_tg_id = %s""", args)
 
     @staticmethod
     @connecting_to_the_database
-    def del_treatment(conn, *args):
-        conn.execute(f"""
+    def del_treatment(cursor, *args):
+        cursor.execute(f"""
                     DELETE FROM treatments
                     WHERE name=%s""", args
                        )
 
     @staticmethod
     @connecting_to_the_database
-    def schedule_get(conn):
-        conn.execute('SELECT * FROM schedule')
-        return conn.fetchall()
+    def schedule_get(cursor):
+        cursor.execute('SELECT * FROM schedule')
+        return cursor.fetchall()
 
     @staticmethod
     @connecting_to_the_database
-    def get_weekday_schedule(conn, *args):
-        conn.execute('''SELECT start_time, end_time FROM schedule
+    def get_weekday_schedule(cursor, *args):
+        cursor.execute('''SELECT start_time, end_time FROM schedule
                        WHERE day_of_the_week = %s''', args)
-        return conn.fetchall()
+        return cursor.fetchall()
 
     @staticmethod
     @connecting_to_the_database
-    def schedule_set_s(conn, *args):
-        conn.execute('UPDATE schedule '
+    def schedule_set_s(cursor, *args):
+        cursor.execute('UPDATE schedule '
                        'SET start_time = %s '
                        'WHERE day_of_the_week = %s', args)
 
     @staticmethod
     @connecting_to_the_database
-    def schedule_set_f(conn, *args):
-        conn.execute('UPDATE schedule '
+    def schedule_set_f(cursor, *args):
+        cursor.execute('UPDATE schedule '
                        'SET end_time = %s '
                        'WHERE day_of_the_week = %s', args)
 
@@ -246,28 +245,28 @@ class DataBase:
 # '''************************************ schedule of changes *************************************'''
     @staticmethod
     @connecting_to_the_database
-    def get_all_schedule_changes(conn):
-        conn.execute(f"""
+    def get_all_schedule_changes(cursor):
+        cursor.execute(f"""
                         SELECT * FROM schedule_changes
                         WHERE start_date > now()
                         ORDER BY start_date ASC
                         """)
-        return conn.fetchall()
+        return cursor.fetchall()
 
 
     # Добавляет данные если такого кортежа еще нет
     @staticmethod
     @connecting_to_the_database
-    def add_schedule_changes(conn, *args):
-        conn.execute(f"""
+    def add_schedule_changes(cursor, *args):
+        cursor.execute(f"""
                     SELECT COUNT(*) FROM schedule_changes
                     WHERE start_date = %s AND end_date = %s
                     """, args[:2]
                        )
 
-        count = conn.fetchone()[0]
+        count = cursor.fetchone()[0]
         if count == 0:
-            conn.execute(f"""
+            cursor.execute(f"""
                         INSERT INTO schedule_changes
                         (start_date, end_date, is_it_a_working_day)
                         VALUES(%s, %s, %s)""", args
@@ -276,51 +275,51 @@ class DataBase:
 
     @staticmethod
     @connecting_to_the_database
-    def get_all_schedule_changes(conn):
-        conn.execute(f"""SELECT * FROM schedule_changes
+    def get_all_schedule_changes(cursor):
+        cursor.execute(f"""SELECT * FROM schedule_changes
                     WHERE start_date > now()""")
-        return conn.fetchall()
+        return cursor.fetchall()
 
     @staticmethod
     @connecting_to_the_database
-    def get_schedule_changes(conn, *args):
-        conn.execute(f"""
+    def get_schedule_changes(cursor, *args):
+        cursor.execute(f"""
                     SELECT * FROM schedule_changes
                     WHERE date_trunc('day', start_date) = %s::date""", args  # We leave only the date for the search
                        )
-        return conn.fetchall()
+        return cursor.fetchall()
 
     @staticmethod
     @connecting_to_the_database
-    def delete_schedule_changes(conn, *args):
-        conn.execute(f"""
+    def delete_schedule_changes(cursor, *args):
+        cursor.execute(f"""
                     DELETE FROM schedule_changes
                     WHERE date_trunc('day', start_date) = %s::date""", args  # We leave only the date for the search
                        )
 
     @staticmethod
     @connecting_to_the_database
-    def delete_table_constant_breaks(conn):
-        conn.execute(f'''DELETE FROM constant_breaks''')  # Таким образом очищается вся таблица
+    def delete_table_constant_breaks(cursor):
+        cursor.execute(f'''DELETE FROM constant_breaks''')  # Таким образом очищается вся таблица
 
     @staticmethod
     @connecting_to_the_database
-    def add_constant_breaks(conn, *args):
-        conn.execute(f"""INSERT INTO constant_breaks
+    def add_constant_breaks(cursor, *args):
+        cursor.execute(f"""INSERT INTO constant_breaks
                         (start_time, end_time)
                         VALUES(%s, %s);""", args)
 
 
     @staticmethod
     @connecting_to_the_database
-    def get_constant_breaks(conn):
-        conn.execute(f"""SELECT * FROM constant_breaks;""")
-        return conn.fetchall()
+    def get_constant_breaks(cursor):
+        cursor.execute(f"""SELECT * FROM constant_breaks;""")
+        return cursor.fetchall()
 
     # @staticmethod
     # @connecting_to_the_database
-    # def drop(conn):
-    #     conn.execute(f"""DROP TABLE appointments;""")
+    # def drop(cursor):
+    #     cursor.execute(f"""DROP TABLE appointments;""")
 
 
 dataBase = DataBase()

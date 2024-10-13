@@ -4,7 +4,7 @@ import datetime
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardMarkup
 from aiogram import types
 
-from database.database import dataBase
+from db.database import dataBase
 
 
 def list_to_keyboard(items: list[str], columns=2) -> InlineKeyboardMarkup:
